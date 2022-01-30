@@ -32,11 +32,11 @@ public class Commit implements Serializable {
     private String message;
     private String sha1Values;
     private String timeStamp;
-    private String parent;
+    private ArrayList<String> parent;
     private HashMap<String, String> files = new HashMap<>();
     private SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
 
-    public String getParent() {
+    public ArrayList<String> getParent() {
         return parent;
     }
 
@@ -53,9 +53,10 @@ public class Commit implements Serializable {
         message = m;
         Date date = new Date();
         timeStamp = formatter.format(date);
-        parent = p;
+        parent = new ArrayList<>();
+        parent.add(p);
         HashMap<String, String> added = Repository.getINDEX().getAdded();
-        Commit parentCommit = readObject(getFileFromID(parent), Commit.class);
+        Commit parentCommit = readObject(getFileFromID(parent.get(0)), Commit.class);
         HashMap<String, String> parentFiles = getFiles();
         HashSet<String> removed = Repository.getINDEX().getRemoved();
         if (added.isEmpty() && removed.isEmpty()) {
@@ -69,7 +70,7 @@ public class Commit implements Serializable {
         for (String e : added.keySet()) {
             this.files.put(e, added.get(e));
         }
-        sha1Values = sha1(message, timeStamp, parent, files.toString());
+        sha1Values = sha1( timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
         return sha1Values;
@@ -78,8 +79,8 @@ public class Commit implements Serializable {
     public String initialCommit() {
         message = "initial commit";
         timeStamp = "Thu Jan 1 08:00:00 1970 +0800";
-        parent = null;
-        sha1Values = sha1(message, timeStamp, parent, files.toString());
+        parent = new ArrayList<>();
+        sha1Values = sha1( timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
         return sha1Values;
