@@ -1,4 +1,5 @@
 package gitlet;
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.sql.*;
@@ -8,13 +9,17 @@ import java.io.File;
 import java.util.Date; // TODO: You'll likely use this in this class
 import java.util.logging.SimpleFormatter;
 
+import static gitlet.MoreUtils.getFileFromID;
+import static gitlet.MoreUtils.printAndExit;
+import static gitlet.Utils.*;
+
 /** Represents a gitlet commit object.
  *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
  *  @author TODO
  */
-public class Commit {
+public class Commit implements Serializable {
     /**
      * TODO: add instance variables here.
      *
@@ -26,50 +31,57 @@ public class Commit {
     /** The message of this Commit. */
     private String message;
     private String sha1Values;
-    private Date date;
     private String timeStamp;
     private String parent;
-    private File[] files;
+    private HashMap<String, String> files = new HashMap<>();
     private SimpleDateFormat formatter = new SimpleDateFormat("EEE MMM d HH:mm:ss yyyy Z");
 
     public String getParent() {
         return parent;
     }
 
-    public File[] getFiles() {
-        return files;
-    }
 
     public String getMessage() {
         return message;
     }
 
+    public HashMap<String, String> getFiles() {
+        return files;
+    }
 
-    public void commit(String m, String p) {
+    public String commit(String m, String p) {
         message = m;
-        date = new Date();
+        Date date = new Date();
         timeStamp = formatter.format(date);
         parent = p;
-        files = null;
-        List<Object> messageToSha = new ArrayList<>();
-        messageToSha.add(message);
-        messageToSha.add(timeStamp);
-        messageToSha.add(parent);
-        messageToSha.add(files);
-        sha1Values = Utils.sha1(messageToSha);
+        HashMap<String, String> added = Repository.getINDEX().getAdded();
+        Commit parentCommit = readObject(getFileFromID(parent), Commit.class);
+        HashMap<String, String> parentFiles = getFiles();
+        HashSet<String> removed = Repository.getINDEX().getRemoved();
+        if (added.isEmpty() && removed.isEmpty()) {
+            printAndExit("No changes added to the commit.");
+        }
+        for (String e : parentFiles.keySet()) {
+            if (added.get(e) == null || !removed.contains(e)) {
+                this.files.put(e, parentFiles.get(e));
+            }
+        }
+        for (String e : added.keySet()) {
+            this.files.put(e, added.get(e));
+        }
+        sha1Values = sha1(this);
+        File fileToSave = getFileFromID(sha1Values);
+        writeObject(fileToSave, this);
+        return sha1Values;
     }
 
     public String initialCommit() {
         message = "initial commit";
         timeStamp = "Thu Jan 1 08:00:00 1970 +0800";
         parent = null;
-        files = null;
-        List<Object> messageToSha = new ArrayList<>();
-        messageToSha.add(message);
-        messageToSha.add(timeStamp);
-        messageToSha.add(parent);
-        messageToSha.add(files);
-        sha1Values = Utils.sha1(messageToSha);
+        sha1Values = sha1(this);
+        File fileToSave = getFileFromID(sha1Values);
+        writeObject(fileToSave, this);
         return sha1Values;
     }
 

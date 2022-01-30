@@ -3,6 +3,7 @@ import java.io.File;
 import java.util.*;
 import java.lang.reflect.Array;
 import static gitlet.Utils.*;
+import static gitlet.MoreUtils.*;
 /** Driver class for Gitlet, a subset of the Git version-control system.
  *  @author TODO
  */
@@ -52,10 +53,18 @@ public class Main {
                 Repository.init();
                 break;
             case "add":
-                // TODO: handle the `add [filename]` command
+                validateNumArgs(args,2);
+                String fileName = args[1];
+                Repository.add(fileName);
                 break;
             case "commit":
-
+                if (args.length == 1) {
+                    printAndExit("Please enter a commit message.");
+                }
+                validateNumArgs(args, 2);
+                String message = args[1];
+                Repository.commit(message);
+                break;
             case "rm":
 
             case "log":
@@ -69,8 +78,7 @@ public class Main {
             case "merge":
 
             default:
-                System.out.println("No command with that name exits.");
-                System.exit(0);
+                printAndExit("No command with that name exits.");
         }
     }
 

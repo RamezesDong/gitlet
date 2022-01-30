@@ -2,7 +2,7 @@ package gitlet;
 
 import java.io.File;
 import java.io.Serializable;
-
+import static gitlet.MoreUtils.*;
 import static gitlet.Utils.*;
 
 public class Blob implements Serializable {
@@ -35,10 +35,6 @@ public class Blob implements Serializable {
         return readObject(getFileFromID(aBlobID), Blob.class);
     }
 
-    public static File getFileFromID(String aBlobID) {
-        File aDir = join(Repository.OBJECTS_DIR, aBlobID.substring(0, 2));
-        File aFile = join(aDir, aBlobID.substring(2));
-        return aFile;
-    }
+
 
 }
