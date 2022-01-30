@@ -88,6 +88,10 @@ public class Repository {
         writeContents(branchFile, sha);
     }
 
+    public static void rm(String rmFileName) {
+
+    }
+
     public static Stage getINDEX() {
         if (!INDEX.exists()) {
             return new Stage();

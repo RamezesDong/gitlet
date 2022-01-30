@@ -66,7 +66,9 @@ public class Main {
                 Repository.commit(message);
                 break;
             case "rm":
-
+                validateNumArgs(args,2);
+                String rmFileName = args[1];
+                Repository.rm(rmFileName);
             case "log":
             case "global-log":
             case "find":

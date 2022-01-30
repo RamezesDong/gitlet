@@ -69,7 +69,7 @@ public class Commit implements Serializable {
         for (String e : added.keySet()) {
             this.files.put(e, added.get(e));
         }
-        sha1Values = sha1(message, timeStamp, parent, files);
+        sha1Values = sha1(message, timeStamp, parent, files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
         return sha1Values;
@@ -79,7 +79,7 @@ public class Commit implements Serializable {
         message = "initial commit";
         timeStamp = "Thu Jan 1 08:00:00 1970 +0800";
         parent = null;
-        sha1Values = sha1(message, timeStamp, parent, files);
+        sha1Values = sha1(message, timeStamp, parent, files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
         return sha1Values;
