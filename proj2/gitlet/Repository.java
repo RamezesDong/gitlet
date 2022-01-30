@@ -29,7 +29,7 @@ public class Repository {
     /** The .gitlet directory. */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
-    public static final File HEAD_DIR = join(GITLET_DIR,"refs", "heads");
+    public static final File HEAD_DIR = join(GITLET_DIR, "heads");
     public static final File INDEX = join(GITLET_DIR, "INDEX");
     public static final File headFile = join(GITLET_DIR, "HEAD");
     public static Commit head;
@@ -58,7 +58,7 @@ public class Repository {
         }
         Commit master = new Commit();
         String initSHA = master.initialCommit();
-        File masterFile = new File(HEAD_DIR, "master");
+        File masterFile = join(HEAD_DIR, "master");
         writeContents(masterFile, initSHA);
         writeContents(headFile, "master");
         try {
