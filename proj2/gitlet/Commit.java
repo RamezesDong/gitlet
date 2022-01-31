@@ -3,10 +3,10 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.sql.*;
-// TODO: any imports you need here
+
 import gitlet.Utils.*;
 import java.io.File;
-import java.util.Date; // TODO: You'll likely use this in this class
+import java.util.Date;
 import java.util.logging.SimpleFormatter;
 
 import static gitlet.MoreUtils.getFileFromID;
@@ -14,14 +14,13 @@ import static gitlet.MoreUtils.printAndExit;
 import static gitlet.Utils.*;
 
 /** Represents a gitlet commit object.
- *  TODO: It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author TODO
+ *  @author RamezesDong
  */
 public class Commit implements Serializable {
     /**
-     * TODO: add instance variables here.
+     *
      *
      * List all instance variables of the Commit class here with a useful
      * comment above them describing what that variable represents and how that
@@ -102,7 +101,7 @@ public class Commit implements Serializable {
 
     public void getLog() {
         this.getSelfLog();
-        if (this.parent != null) {
+        if (this.parent.size() != 0) {
             Commit parent = getCommitFromID(this.parent.get(0));
             parent.getLog();
         }
@@ -129,5 +128,5 @@ public class Commit implements Serializable {
         }
         return getFileFromID(sha1Str);
     }
-    /* TODO: fill in the rest of this class. */
+
 }

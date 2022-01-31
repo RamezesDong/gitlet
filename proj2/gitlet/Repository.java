@@ -1,56 +1,61 @@
 package gitlet;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 import java.lang.reflect.Array;
+
 import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;
 
-// TODO: any imports you need here
 
-/** Represents a gitlet repository.
- *  TODO: It's a good idea to give a description here of what else this Class
+
+/**
+ * Represents a gitlet repository.
+ *  It's a good idea to give a description here of what else this Class
  *  does at a high level.
  *
- *  @author RamezesDong
+ * @author RamezesDong
  */
 public class Repository {
     /**
-     * TODO: add instance variables here.
+     *
      *
      * List all instance variables of the Repository class here with a useful
      * comment above them describing what that variable represents and how that
      * variable is used. We've provided two examples for you.
      */
 
-    /** The current working directory. */
+    /**
+     * The current working directory.
+     */
     public static final File CWD = new File(System.getProperty("user.dir"));
-    /** The .gitlet directory. */
+    /**
+     * The .gitlet directory.
+     */
     public static final File GITLET_DIR = join(CWD, ".gitlet");
     public static final File OBJECTS_DIR = join(GITLET_DIR, "objects");
     public static final File HEAD_DIR = join(GITLET_DIR, "heads");
     public static final File INDEX = join(GITLET_DIR, "INDEX");
-    public static final File headFile = join(GITLET_DIR, "HEAD");
+    public static final File HEADFILE = join(GITLET_DIR, "HEAD");
     public static final File LOGS = join(GITLET_DIR, "logs");
     public static Commit head;
-    /* TODO: fill in the rest of this class. */
 
 
     /**
      * init()
      * Initialize the directory and files in the .gitlet.
-     *
      */
     public static void init() {
-        if(GITLET_DIR.exists()) {
-            throw new GitletException (
-                "A Gitlet version-control system already exists in the current directory.");
+        if (GITLET_DIR.exists()) {
+            printAndExit("A Gitlet version-control " +
+                    "system already exists in the current directory.");
         }
         GITLET_DIR.mkdir();
         OBJECTS_DIR.mkdir();
         HEAD_DIR.mkdir();
-        for (int i = 0; i <= 15; i ++) {
+        for (int i = 0; i <= 15; i++) {
             for (int j = 0; j <= 15; j++) {
                 String now = Integer.toHexString(i) + Integer.toHexString(j);
                 File newDir = join(OBJECTS_DIR, now);
@@ -61,7 +66,7 @@ public class Repository {
         String initSHA = master.initialCommit();
         File masterFile = join(HEAD_DIR, "master");
         writeContents(masterFile, initSHA);
-        writeContents(headFile, "master");
+        writeContents(HEADFILE, "master");
     }
 
     public static void add(String fileName) {
@@ -76,7 +81,10 @@ public class Repository {
 
     public static void commit(String commitMessage) {
         gitInitializedCheck();
-        String parent =  getHeaderToCommitSHA1();
+        if (commitMessage == null) {
+            printAndExit("Please enter a commit message.");
+        }
+        String parent = getHeaderToCommitSHA1();
         String sha = new Commit().commit(commitMessage, parent);
         File branchFile = getHeadFile();
         writeContents(branchFile, sha);
@@ -105,7 +113,7 @@ public class Repository {
     /***
      * displays information about all commits ever made
      */
-    public static void global_log() {
+    public static void globalLog() {
         gitInitializedCheck();
         Logs logs = new Logs();
         logs.globalLogs();
@@ -164,14 +172,39 @@ public class Repository {
         }
     }
 
+    public static void createBranch(String branchName) {
+        gitInitializedCheck();
+        File[] filesList = HEAD_DIR.listFiles();
+        for (File f : filesList) {
+            if (branchName.equals(f.getName())) {
+                printAndExit("A branch with that name already exists.");
+            }
+        }
+        File f = join(HEAD_DIR, branchName);
+        writeContents(f, readContents(getHeadFile()));
+        writeContents(HEADFILE, branchName);
+    }
+
+    public static void rmBranch(String branchName) {
+        
+    }
+
+    public static void reset(String branchName) {
+
+    }
+
+    public static void merge(String id) {
+
+    }
+
     public static void branchesStatus() {
         File[] fileList = HEAD_DIR.listFiles();
-        String head = getHEAD();
+        String headName = getHEAD();
         Arrays.sort(fileList);
         System.out.println("=== Branches ===");
-        for (File f: fileList) {
-            String s = f.toString();
-            if (s == head) {
+        for (File f : fileList) {
+            String s = f.getName();
+            if (s.equals(headName)) {
                 System.out.println("*" + s);
             } else {
                 System.out.println(s);
@@ -184,12 +217,12 @@ public class Repository {
         if (!INDEX.exists()) {
             return new Stage();
         } else {
-           return readObject(INDEX, Stage.class);
+            return readObject(INDEX, Stage.class);
         }
     }
 
     public static String getHEAD() {
-        return readContentsAsString(headFile);
+        return readContentsAsString(HEADFILE);
     }
 
     public static File getHeadFile() {
@@ -201,7 +234,7 @@ public class Repository {
     }
 
     public static Commit getHeaderToCommit() {
-        File f  = getFileFromID(getHeaderToCommitSHA1());
+        File f = getFileFromID(getHeaderToCommitSHA1());
         return readObject(f, Commit.class);
     }
 

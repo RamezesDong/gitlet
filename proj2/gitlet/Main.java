@@ -1,59 +1,64 @@
 package gitlet;
+
 import java.io.File;
 import java.util.*;
 import java.lang.reflect.Array;
+
 import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;
-/** Driver class for Gitlet, a subset of the Git version-control system.
- *  @author TODO
+
+/**
+ * Driver class for Gitlet, a subset of the Git version-control system.
+ *
+ * @author TODO
  */
 public class Main {
 
-    /** Usage: java gitlet.Main ARGS, where ARGS contains
-     *  <COMMAND> <OPERAND1> <OPERAND2> ...
-     *
-     *  init -- Initialize the gitlet.
-     *
-     *  add [file name]
-     *
-     *  commit [message]
-     *
-     *  rm [file name]
-     *
-     *  log
-     *
-     *  global-log
-     *
-     *  find [commit message]
-     *
-     *  status
-     *
-     *  checkout -- [file name]
-     *           [commit id] -- [file name]
-     *           [branch name]
-     *
-     *  branch [branch name]
-     *
-     *  rm-branch [branch name]
-     *
-     *  reset [commit id]
-     *
-     *  merge [branch name]
+    /***
+     * Usage: java gitlet.Main ARGS, where ARGS contains
+     * <COMMAND> <OPERAND1> <OPERAND2> ...
+     * <p>
+     * init -- Initialize the gitlet.
+     * <p>
+     * add [file name]
+     * <p>
+     * commit [message]
+     * <p>
+     * rm [file name]
+     * <p>
+     * log
+     * <p>
+     * global-log
+     * <p>
+     * find [commit message]
+     * <p>
+     * status
+     * <p>
+     * checkout -- [file name]
+     * [commit id] -- [file name]
+     * [branch name]
+     * <p>
+     * branch [branch name]
+     * <p>
+     * rm-branch [branch name]
+     * <p>
+     * reset [commit id]
+     * <p>
+     * merge [branch name]
      */
     public static void main(String[] args) {
-        // TODO: what if args is empty?
         if (args == null) {
             System.out.println("Please enter a command.");
             System.exit(0);
         }
         String firstArg = args[0];
-        switch(firstArg) {
+        switch (firstArg) {
             case "init":
                 validateNumArgs(args, 1);
                 Repository.init();
                 break;
             case "add":
-                validateNumArgs(args,2);
+                validateNumArgs(args, 2);
                 String fileName = args[1];
                 Repository.add(fileName);
                 break;
@@ -66,7 +71,7 @@ public class Main {
                 Repository.commit(message);
                 break;
             case "rm":
-                validateNumArgs(args,2);
+                validateNumArgs(args, 2);
                 String rmFileName = args[1];
                 Repository.rm(rmFileName);
                 break;
@@ -76,7 +81,7 @@ public class Main {
                 break;
             case "global-log":
                 validateNumArgs(args, 1);
-                Repository.global_log();
+                Repository.globalLog();
                 break;
             case "find":
                 validateNumArgs(args, 2);
@@ -93,14 +98,14 @@ public class Main {
                     Repository.changeBranch(branchName);
                     break;
                 } else if (args.length == 3) {
-                    if (args[1] == "--") {
+                    if (args[1].equals("--")) {
                         String fName = args[2];
                         Repository.checkOutFile(fName);
                     } else {
                         printAndExit("Incorrect operands.");
                     }
                 } else if (args.length == 4) {
-                    if (args[2] == "--") {
+                    if (args[2].equals("--")) {
                         String bID = args[1];
                         String fName = args[3];
                         Repository.checkOutFileFromCommit(bID, fName);
@@ -112,9 +117,25 @@ public class Main {
                 }
                 break;
             case "branch":
+                validateNumArgs(args, 2);
+                String branchName = args[1];
+                Repository.createBranch(branchName);
+                break;
             case "rm-branch":
+                validateNumArgs(args, 2);
+                String rmBranchName = args[1];
+                Repository.rmBranch(rmBranchName);
+                break;
             case "reset":
+                validateNumArgs(args, 2);
+                String commitID = args[1];
+                Repository.reset(commitID);
+                break;
             case "merge":
+                validateNumArgs(args, 2);
+                String branchName2 = args[1];
+                Repository.merge(branchName2);
+                break;
             default:
                 printAndExit("No command with that name exits.");
         }
