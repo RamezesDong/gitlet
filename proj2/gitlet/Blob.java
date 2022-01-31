@@ -9,9 +9,11 @@ public class Blob implements Serializable {
     private byte[] content;
     private File blobDir;
     private File blobFile;
+    private File sourceFile;
     private String blobID;
 
     public Blob(File f) {
+        sourceFile = f;
         content = readContents(f);
         blobID = sha1(content);
         blobDir = join(Repository.OBJECTS_DIR, blobID.substring(0,2));
@@ -35,6 +37,7 @@ public class Blob implements Serializable {
         return readObject(getFileFromID(aBlobID), Blob.class);
     }
 
-
-
+    public void writeToSourceFile() {
+        writeContents(sourceFile, content);
+    }
 }

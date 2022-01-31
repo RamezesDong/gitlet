@@ -144,31 +144,19 @@ public class Repository {
     public static void checkOutFile(String fName) {
         gitInitializedCheck();
         Commit currentCommit = getHeaderToCommit();
-        File fileFromCommit = currentCommit.findFileName(fName);
-        if (fileFromCommit == null) {
+        if (!currentCommit.CheckOutFileName(fName)) {
             printAndExit("File does not exist in that commit.");
-        } else {
-            File f = join(CWD, fName);
-            restrictedDelete(f);
-            byte[] content = readContents(fileFromCommit);
-            writeContents(f, content);
         }
     }
 
     public static void checkOutFileFromCommit(String id, String fName) {
         gitInitializedCheck();
-        Commit cm = Commit.getCommitFromID(id);
-        if (cm == null) {
+        Commit currentCommit = Commit.getCommitFromID(id);
+        if (currentCommit == null) {
             printAndExit("No commit with that id exists.");
         }
-        File fileFromCommit = cm.findFileName(fName);
-        if (fileFromCommit == null) {
+        if (!currentCommit.CheckOutFileName(fName)) {
             printAndExit("File does not exist in that commit.");
-        } else {
-            File f = join(CWD, fName);
-            restrictedDelete(f);
-            byte[] content = readContents(fileFromCommit);
-            writeContents(f, content);
         }
     }
 
@@ -186,7 +174,7 @@ public class Repository {
     }
 
     public static void rmBranch(String branchName) {
-        
+
     }
 
     public static void reset(String branchName) {
@@ -226,7 +214,8 @@ public class Repository {
     }
 
     public static File getHeadFile() {
-        return join(HEAD_DIR, getHEAD());
+        File f = join(HEAD_DIR, getHEAD());
+        return f;
     }
 
     public static String getHeaderToCommitSHA1() {

@@ -121,12 +121,13 @@ public class Commit implements Serializable {
         return readObject(f, Commit.class);
     }
 
-    public File findFileName(String fName) {
+    public boolean CheckOutFileName(String fName) {
         String sha1Str = files.get(fName);
         if (sha1Str == null) {
-            return null;
+            return false;
         }
-        return getFileFromID(sha1Str);
+        Blob.getFromID(sha1Str).writeToSourceFile();
+        return true;
     }
 
 }
