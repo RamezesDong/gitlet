@@ -1,5 +1,4 @@
 package gitlet;
-import jdk.jpackage.internal.Log;
 
 import java.io.*;
 import java.nio.file.Files;
