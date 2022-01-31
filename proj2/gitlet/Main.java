@@ -69,10 +69,24 @@ public class Main {
                 validateNumArgs(args,2);
                 String rmFileName = args[1];
                 Repository.rm(rmFileName);
+                break;
             case "log":
+                validateNumArgs(args, 1);
+                Repository.log();
+                break;
             case "global-log":
+                validateNumArgs(args, 1);
+                Repository.global_log();
+                break;
             case "find":
+                validateNumArgs(args, 2);
+                String findMessage = args[1];
+                Repository.find(findMessage);
+                break;
             case "status":
+                validateNumArgs(args, 1);
+                Repository.status();
+                break;
             case "checkout":
             case "branch":
             case "rm-branch":

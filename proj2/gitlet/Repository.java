@@ -32,6 +32,7 @@ public class Repository {
     public static final File HEAD_DIR = join(GITLET_DIR, "heads");
     public static final File INDEX = join(GITLET_DIR, "INDEX");
     public static final File headFile = join(GITLET_DIR, "HEAD");
+    public static final File LOGS = join(GITLET_DIR, "logs");
     public static Commit head;
     /* TODO: fill in the rest of this class. */
 
@@ -61,22 +62,15 @@ public class Repository {
         File masterFile = join(HEAD_DIR, "master");
         writeContents(masterFile, initSHA);
         writeContents(headFile, "master");
-        try {
-            INDEX.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public static void add(String fileName) {
         gitInitializedCheck();
         File fileToAdd = new File(CWD, fileName);
-        if (!fileToAdd.exists()) {
-            printAndExit("File does not exist.");
-        }
+        fileExistCheck(fileToAdd);
         Stage stage = getINDEX();
         if (stage.add(fileName)) {
-            stage.save(fileName);
+            stage.save();
         }
     }
 
@@ -89,7 +83,43 @@ public class Repository {
     }
 
     public static void rm(String rmFileName) {
+        gitInitializedCheck();
+        File fileToRemove = join(CWD, rmFileName);
+        fileExistCheck(fileToRemove);
+        Stage stage = getINDEX();
+        if (stage.atAdded(rmFileName)) {
+            stage.removeFromAdd(rmFileName);
+        } else if (stage.atTracked(rmFileName)) {
+            stage.addFileToRemoved(rmFileName);
+        } else {
+            printAndExit("No reason to remove the file");
+        }
+    }
 
+    public static void log() {
+        gitInitializedCheck();
+        Commit now = getHeaderToCommit();
+        now.getLog();
+    }
+
+    /***
+     * displays information about all commits ever made
+     */
+    public static void global_log() {
+        gitInitializedCheck();
+        Logs logs = new Logs();
+        logs.globalLogs();
+    }
+
+    public static void find(String findMessage) {
+        gitInitializedCheck();
+        Logs logs = new Logs();
+        logs.find(findMessage);
+    }
+
+    public static void status() {
+        gitInitializedCheck();
+        
     }
 
     public static Stage getINDEX() {
@@ -115,6 +145,12 @@ public class Repository {
     public static Commit getHeaderToCommit() {
         File f  = getFileFromID(getHeaderToCommitSHA1());
         return readObject(f, Commit.class);
+    }
+
+    public static void fileExistCheck(File f) {
+        if (!f.exists()) {
+            printAndExit("File does not exist.");
+        }
     }
 
     private static void gitInitializedCheck() {

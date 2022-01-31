@@ -40,6 +40,9 @@ public class Commit implements Serializable {
         return parent;
     }
 
+    public String getSha1Values() {
+        return sha1Values;
+    }
 
     public String getMessage() {
         return message;
@@ -57,7 +60,7 @@ public class Commit implements Serializable {
         parent.add(p);
         HashMap<String, String> added = Repository.getINDEX().getAdded();
         Commit parentCommit = readObject(getFileFromID(parent.get(0)), Commit.class);
-        HashMap<String, String> parentFiles = getFiles();
+        HashMap<String, String> parentFiles = parentCommit.getFiles();
         HashSet<String> removed = Repository.getINDEX().getRemoved();
         if (added.isEmpty() && removed.isEmpty()) {
             printAndExit("No changes added to the commit.");
@@ -70,9 +73,11 @@ public class Commit implements Serializable {
         for (String e : added.keySet()) {
             this.files.put(e, added.get(e));
         }
+        Repository.INDEX.delete();
         sha1Values = sha1( timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
+        writeToGlobalLog();
         return sha1Values;
     }
 
@@ -83,8 +88,35 @@ public class Commit implements Serializable {
         sha1Values = sha1( timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
+        writeToGlobalLog();
         return sha1Values;
     }
 
+    public void getSelfLog() {
+        System.out.println("===");
+        System.out.println("commit " + this.sha1Values);
+        System.out.println("Date: " + this.timeStamp);
+        System.out.println(this.message);
+        System.out.println();
+    }
+
+    public void getLog() {
+        this.getSelfLog();
+        if (this.parent != null) {
+            Commit parent = getCommitFromID(this.parent.get(0));
+            parent.getLog();
+        }
+    }
+
+    public void writeToGlobalLog() {
+        Logs logs = new Logs();
+        logs.addLogs(this.sha1Values);
+        logs.writeToLogs();
+    }
+
+    public static Commit getCommitFromID(String id) {
+        File f = getFileFromID(id);
+        return readObject(f, Commit.class);
+    }
     /* TODO: fill in the rest of this class. */
 }
