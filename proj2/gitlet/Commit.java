@@ -116,7 +116,18 @@ public class Commit implements Serializable {
 
     public static Commit getCommitFromID(String id) {
         File f = getFileFromID(id);
+        if (!f.exists()) {
+            return null;
+        }
         return readObject(f, Commit.class);
+    }
+
+    public File findFileName(String fName) {
+        String sha1Str = files.get(fName);
+        if (sha1Str == null) {
+            return null;
+        }
+        return getFileFromID(sha1Str);
     }
     /* TODO: fill in the rest of this class. */
 }

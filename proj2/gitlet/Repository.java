@@ -119,7 +119,65 @@ public class Repository {
 
     public static void status() {
         gitInitializedCheck();
-        
+        branchesStatus();
+        Stage stage = new Stage();
+        stage.status();
+        printOneLine("=== Modifications Not Staged For Commit ===");
+        printOneLine(null);
+        printOneLine("=== Untracked Files ===");
+        printOneLine(null);
+    }
+
+    public static void changeBranch(String branchName) {
+        gitInitializedCheck();
+
+    }
+
+    public static void checkOutFile(String fName) {
+        gitInitializedCheck();
+        Commit currentCommit = getHeaderToCommit();
+        File fileFromCommit = currentCommit.findFileName(fName);
+        if (fileFromCommit == null) {
+            printAndExit("File does not exist in that commit.");
+        } else {
+            File f = join(CWD, fName);
+            restrictedDelete(f);
+            byte[] content = readContents(fileFromCommit);
+            writeContents(f, content);
+        }
+    }
+
+    public static void checkOutFileFromCommit(String id, String fName) {
+        gitInitializedCheck();
+        Commit cm = Commit.getCommitFromID(id);
+        if (cm == null) {
+            printAndExit("No commit with that id exists.");
+        }
+        File fileFromCommit = cm.findFileName(fName);
+        if (fileFromCommit == null) {
+            printAndExit("File does not exist in that commit.");
+        } else {
+            File f = join(CWD, fName);
+            restrictedDelete(f);
+            byte[] content = readContents(fileFromCommit);
+            writeContents(f, content);
+        }
+    }
+
+    public static void branchesStatus() {
+        File[] fileList = HEAD_DIR.listFiles();
+        String head = getHEAD();
+        Arrays.sort(fileList);
+        System.out.println("=== Branches ===");
+        for (File f: fileList) {
+            String s = f.toString();
+            if (s == head) {
+                System.out.println("*" + s);
+            } else {
+                System.out.println(s);
+            }
+        }
+        System.out.println();
     }
 
     public static Stage getINDEX() {
@@ -145,6 +203,13 @@ public class Repository {
     public static Commit getHeaderToCommit() {
         File f  = getFileFromID(getHeaderToCommitSHA1());
         return readObject(f, Commit.class);
+    }
+
+    public static void fileExistCheck(String fileName) {
+        File f = join(CWD, fileName);
+        if (!f.exists()) {
+            printAndExit("File does not exist.");
+        }
     }
 
     public static void fileExistCheck(File f) {

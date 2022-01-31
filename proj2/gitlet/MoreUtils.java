@@ -27,6 +27,14 @@ public class MoreUtils {
         System.exit(0);
     }
 
+    static void printOneLine(String s) {
+        if (s == null) {
+            System.out.println();
+        } else {
+            System.out.println(s);
+        }
+    }
+
     static File getFileFromID(String aBlobID) {
         File aDir = join(Repository.OBJECTS_DIR, aBlobID.substring(0, 2));
         File aFile = join(aDir, aBlobID.substring(2));

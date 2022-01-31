@@ -88,11 +88,33 @@ public class Main {
                 Repository.status();
                 break;
             case "checkout":
+                if (args.length == 2) {
+                    String branchName = args[1];
+                    Repository.changeBranch(branchName);
+                    break;
+                } else if (args.length == 3) {
+                    if (args[1] == "--") {
+                        String fName = args[2];
+                        Repository.checkOutFile(fName);
+                    } else {
+                        printAndExit("Incorrect operands.");
+                    }
+                } else if (args.length == 4) {
+                    if (args[2] == "--") {
+                        String bID = args[1];
+                        String fName = args[3];
+                        Repository.checkOutFileFromCommit(bID, fName);
+                    } else {
+                        printAndExit("Incorrect operands.");
+                    }
+                } else {
+                    printAndExit("Incorrect operands.");
+                }
+                break;
             case "branch":
             case "rm-branch":
             case "reset":
             case "merge":
-
             default:
                 printAndExit("No command with that name exits.");
         }

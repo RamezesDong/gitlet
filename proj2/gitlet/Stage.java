@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.*;
 import java.lang.reflect.Array;
 import static gitlet.Utils.*;
+import static gitlet.MoreUtils.*;
 
 public class Stage implements Serializable {
     private HashMap<String, String> tracked;
@@ -63,6 +64,19 @@ public class Stage implements Serializable {
         return tracked;
     }
 
+
+    public void status() {
+        printOneLine("=== Staged Files ===");
+        for (String s : added.keySet()) {
+            printOneLine(s);
+        }
+        printOneLine(null);
+        printOneLine("=== Removed Files ===");
+        for (String s : removed) {
+            printOneLine(s);
+        }
+        printOneLine(null);
+    }
 
     public void save () {
         writeObject(Repository.INDEX, this);
