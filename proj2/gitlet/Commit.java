@@ -1,10 +1,12 @@
 package gitlet;
+
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.sql.*;
 
 import gitlet.Utils.*;
+
 import java.io.File;
 import java.util.Date;
 import java.util.logging.SimpleFormatter;
@@ -13,10 +15,11 @@ import static gitlet.MoreUtils.getFileFromID;
 import static gitlet.MoreUtils.printAndExit;
 import static gitlet.Utils.*;
 
-/** Represents a gitlet commit object.
- *  does at a high level.
+/**
+ * Represents a gitlet commit object.
+ * does at a high level.
  *
- *  @author RamezesDong
+ * @author RamezesDong
  */
 public class Commit implements Serializable {
     /**
@@ -27,7 +30,9 @@ public class Commit implements Serializable {
      * variable is used. We've provided one example for `message`.
      */
 
-    /** The message of this Commit. */
+    /**
+     * The message of this Commit.
+     */
     private String message;
     private String sha1Values;
     private String timeStamp;
@@ -64,16 +69,19 @@ public class Commit implements Serializable {
         if (added.isEmpty() && removed.isEmpty()) {
             printAndExit("No changes added to the commit.");
         }
-        for (String e : parentFiles.keySet()) {
-            if (added.get(e) == null || !removed.contains(e)) {
-                this.files.put(e, parentFiles.get(e));
+        this.files = (HashMap<String, String>) parentFiles.clone();
+        for (String e : added.keySet()) {
+            if (this.files.containsKey(e)) {
+                this.files.put(e, added.get(e));
             }
         }
-        for (String e : added.keySet()) {
-            this.files.put(e, added.get(e));
+        for (String e : removed) {
+            if (this.files.containsKey(e)) {
+                this.files.remove(e);
+            }
         }
         Repository.INDEX.delete();
-        sha1Values = sha1( timeStamp, message, parent.toString(), files.toString());
+        sha1Values = sha1(timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
         writeToGlobalLog();
@@ -84,7 +92,7 @@ public class Commit implements Serializable {
         message = "initial commit";
         timeStamp = "Thu Jan 1 08:00:00 1970 +0800";
         parent = new ArrayList<>();
-        sha1Values = sha1( timeStamp, message, parent.toString(), files.toString());
+        sha1Values = sha1(timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
         writeToGlobalLog();
@@ -128,6 +136,15 @@ public class Commit implements Serializable {
         }
         Blob.getFromID(sha1Str).writeToSourceFile();
         return true;
+    }
+
+    public void reset() {
+        for (String e : files.keySet()) {
+            String sha1 = files.get(e);
+            Blob trackedBlob = Blob.getFromID(sha1);
+            trackedBlob.writeToSourceFile();
+        }
+        restrictedDelete(Repository.INDEX);
     }
 
 }

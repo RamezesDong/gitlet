@@ -1,15 +1,17 @@
 package gitlet;
+
 import java.io.Serializable;
 import java.io.File;
 import java.util.*;
 import java.lang.reflect.Array;
+
 import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;
 
 public class Stage implements Serializable {
     private HashMap<String, String> tracked;
-    private HashMap<String, String> added = new HashMap<>();
-    private HashSet<String> removed = new HashSet<>();
+    private HashMap<String, String> added;
+    private HashSet<String> removed;
 
 
     public Stage() {
@@ -22,16 +24,12 @@ public class Stage implements Serializable {
      * @param fileName
      * @return whether the file to add is new in the objects files
      */
-    public boolean add(String fileName) {
+    public void add(String fileName) {
         File fileToAdd = new File(Repository.CWD, fileName);
-        byte[] readContent = readContents(fileToAdd);
-        String sha1ToAdd = sha1(readContent);
-        tracked = getCurrentTracked();
-        if (added.get(fileName) == null || added.get(fileName) != sha1ToAdd) {
-            added.put(fileName, sha1ToAdd);
-            return true;
-        }
-        return false;
+        Blob b = new Blob(fileToAdd);
+        String sha1ToAdd = b.getBlobID();
+        added.put(fileName, sha1ToAdd);
+        this.save();
     }
 
     public boolean atAdded(String fileName) {
@@ -46,7 +44,7 @@ public class Stage implements Serializable {
     public void addFileToRemoved(String fileName) {
         removed.add(fileName);
         File f = join(Repository.CWD, fileName);
-        f.delete();
+        restrictedDelete(f);
         this.save();
     }
 
@@ -78,7 +76,7 @@ public class Stage implements Serializable {
         printOneLine(null);
     }
 
-    public void save () {
+    public void save() {
         writeObject(Repository.INDEX, this);
     }
 

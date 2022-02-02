@@ -10,11 +10,10 @@ import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;
 
 
-
 /**
  * Represents a gitlet repository.
- *  It's a good idea to give a description here of what else this Class
- *  does at a high level.
+ * It's a good idea to give a description here of what else this Class
+ * does at a high level.
  *
  * @author RamezesDong
  */
@@ -74,9 +73,7 @@ public class Repository {
         File fileToAdd = new File(CWD, fileName);
         fileExistCheck(fileToAdd);
         Stage stage = getINDEX();
-        if (stage.add(fileName)) {
-            stage.save();
-        }
+        stage.add(fileName);
     }
 
     public static void commit(String commitMessage) {
@@ -151,7 +148,11 @@ public class Repository {
 
     public static void checkOutFileFromCommit(String id, String fName) {
         gitInitializedCheck();
-        Commit currentCommit = Commit.getCommitFromID(id);
+        File currentCommitFile = getFileFromShortedID(id);
+        if (currentCommitFile == null) {
+            printAndExit("No commit with that id exist.");
+        }
+        Commit currentCommit = readObject(currentCommitFile, Commit.class);
         if (currentCommit == null) {
             printAndExit("No commit with that id exists.");
         }
@@ -174,11 +175,30 @@ public class Repository {
     }
 
     public static void rmBranch(String branchName) {
-
+        gitInitializedCheck();
+        File[] fileList = HEAD_DIR.listFiles();
+        String headName = getHEAD();
+        if (branchName.equals(headName)) {
+            printAndExit("Cannot remove the current branch.");
+        }
+        for (File f : fileList) {
+            String s = f.getName();
+            if (s.equals(branchName)) {
+                restrictedDelete(f);
+                System.exit(1);
+            }
+        }
+        printAndExit("A branch with that name does not exist.");
     }
 
-    public static void reset(String branchName) {
-
+    public static void reset(String commitID) {
+        gitInitializedCheck();
+        File commitFile = getFileFromID(commitID);
+        if (!commitFile.exists()) {
+            printAndExit("No commit with that id exists.");
+        }
+        Commit objectCommit = readObject(commitFile, Commit.class);
+        objectCommit.reset();
     }
 
     public static void merge(String id) {
