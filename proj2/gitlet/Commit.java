@@ -78,7 +78,7 @@ public class Commit implements Serializable {
                 this.files.remove(e);
             }
         }
-        restrictedDelete(Repository.INDEX);
+        Repository.INDEX.delete();
         sha1Values = sha1(timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
@@ -150,7 +150,7 @@ public class Commit implements Serializable {
             Blob trackedBlob = Blob.getFromID(sha1);
             trackedBlob.writeToSourceFile();
         }
-        restrictedDelete(Repository.INDEX);
+        Repository.INDEX.delete();
     }
 
 }
