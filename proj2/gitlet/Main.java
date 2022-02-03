@@ -47,7 +47,7 @@ public class Main {
      * merge [branch name]
      */
     public static void main(String[] args) {
-        if (args == null) {
+        if (args == null || args.length == 0) {
             System.out.println("Please enter a command.");
             System.exit(0);
         }

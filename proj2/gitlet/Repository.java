@@ -128,21 +128,47 @@ public class Repository {
         branchesStatus();
         Stage stage = getINDEX();
         stage.status();
+        notStagedForCommitAndUnstaged();
+    }
+
+    public static void notStagedForCommitAndUnstaged() {
         printOneLine("=== Modifications Not Staged For Commit ===");
-        notStagedForCommit();
+        HashMap<String, String> currentFiles = findAllCurrentFiles();
+        Commit cm = getHeaderToCommit();
+        HashMap<String, String> tracked = cm.getFiles();
+        Stage index = getINDEX();
+        HashMap<String, String> added = index.getAdded();
+        HashSet<String> removed = index.getRemoved();
+        HashSet<String> printed = new HashSet<>();
+        for (String s : currentFiles.keySet()) {
+            if ((tracked.containsKey(s) && !tracked.get(s).equals(currentFiles.get(s)) && !added.containsKey(s))
+                    || (added.containsKey(s) && !added.get(s).equals(currentFiles.get(s)))) {
+                printOneLine(s + " (modified)");
+                printed.add(s);
+            }
+        }
+        for (String s : added.keySet()) {
+            if (!currentFiles.containsKey(s) && !printed.contains(s)) {
+                printOneLine(s + " (deleted)");
+                printed.add(s);
+            }
+        }
+        for (String s : tracked.keySet()) {
+            if (!removed.contains(s) && !currentFiles.containsKey(s) && printed.contains(s)) {
+                printOneLine(s + " (deleted)");
+            }
+        }
+        printOneLine(null);
+
         printOneLine("=== Untracked Files ===");
+        for (String s : currentFiles.keySet()) {
+            if (!added.containsKey(s) && !tracked.containsKey(s)) {
+                printOneLine(s);
+            }
+        }
         printOneLine(null);
     }
 
-    public static void notStagedForCommit() {
-        File[] filesList = CWD.listFiles();
-        Commit cm = getHeaderToCommit();
-        HashMap<String, String> tracked = cm.getFiles();
-        printOneLine(null);
-        for (File f : filesList) {
-        }
-        //TODO: delay to do
-    }
 
     public static void changeBranch(String branchName) {
         gitInitializedCheck();
@@ -153,12 +179,12 @@ public class Repository {
         if (branchFile.getName().equals(getHeadFile().getName())) {
             printAndExit("No need to checkout the current branch.");
         }
-        List<File> files = findFilesUntracked();
+        HashMap<String, String> nowFiles = findAllCurrentFiles();
+        List<String> files = findFilesUntracked(nowFiles);
         if (files.size() != 0) {
             printAndExit("There is an untracked file in the way; delete it, or add and commit it first.");
         }
-        List<File> nowFiles = findAllCurrentFiles();
-        for (File f : nowFiles) {
+        for (String f : nowFiles.keySet()) {
             restrictedDelete(f);
         }
         String branchID = readContentsAsString(branchFile);
@@ -168,13 +194,25 @@ public class Repository {
         restrictedDelete(INDEX);
     }
 
-    public static List<File> findAllCurrentFiles() {
-        return null;
-        //TODO
+    public static HashMap<String, String> findAllCurrentFiles() {
+        HashMap<String, String> currentFileMap = new HashMap<>();
+        File[] currentFiles = CWD.listFiles(File::isFile);
+        for (File f : currentFiles) {
+            Blob nb = new Blob(f);
+            currentFileMap.put(f.getName(), nb.getBlobID());
+        }
+        return currentFileMap;
     }
 
-    public static List<File> findFilesUntracked() {
-        List<File> finds = new ArrayList<>();
+    public static List<String> findFilesUntracked(HashMap<String, String> currentFiles) {
+        List<String> finds = new ArrayList<>();
+        HashMap<String, String> tracked = getHeaderToCommit().getFiles();
+        HashMap<String, String> added = getINDEX().getAdded();
+        for (String s : currentFiles.keySet()) {
+            if (!tracked.containsKey(s) && !added.containsKey(s)) {
+                finds.add(s);
+            }
+        }
         return finds;
     }
 
