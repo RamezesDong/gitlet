@@ -53,7 +53,7 @@ public class Logs implements Serializable {
         boolean flag = true;
         for (String e : differentID) {
             Commit cm = Commit.getCommitFromID(e);
-            if (s == cm.getMessage()) {
+            if (s.equals(cm.getMessage())) {
                 flag = false;
                 System.out.println(cm.getSha1Values());
             }

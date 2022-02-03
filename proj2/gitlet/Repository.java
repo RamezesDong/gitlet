@@ -90,8 +90,8 @@ public class Repository {
 
     public static void rm(String rmFileName) {
         gitInitializedCheck();
-        File fileToRemove = join(CWD, rmFileName);
-        fileExistCheck(fileToRemove);
+        //File fileToRemove = join(CWD, rmFileName);
+        //fileExistCheck(fileToRemove);
         Stage stage = getINDEX();
         if (stage.atAdded(rmFileName)) {
             stage.removeFromAdd(rmFileName);
@@ -222,7 +222,6 @@ public class Repository {
         }
         File f = join(HEAD_DIR, branchName);
         writeContents(f, readContents(getHeadFile()));
-        writeContents(HEADFILE, branchName);
     }
 
     public static void rmBranch(String branchName) {
