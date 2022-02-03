@@ -69,18 +69,16 @@ public class Commit implements Serializable {
         if (added.isEmpty() && removed.isEmpty()) {
             printAndExit("No changes added to the commit.");
         }
-        this.files = (HashMap<String, String>) parentFiles.clone();
+        this.files = new HashMap<>(parentFiles);
         for (String e : added.keySet()) {
-            if (this.files.containsKey(e)) {
-                this.files.put(e, added.get(e));
-            }
+            this.files.put(e, added.get(e));
         }
         for (String e : removed) {
             if (this.files.containsKey(e)) {
                 this.files.remove(e);
             }
         }
-        Repository.INDEX.delete();
+        restrictedDelete(Repository.INDEX);
         sha1Values = sha1(timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
