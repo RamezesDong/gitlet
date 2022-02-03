@@ -25,7 +25,7 @@ public class Stage implements Serializable {
      * @return whether the file to add is new in the objects files
      */
     public void add(String fileName) {
-        File fileToAdd = new File(Repository.CWD, fileName);
+        File fileToAdd = join(Repository.CWD, fileName);
         Blob b = new Blob(fileToAdd);
         String sha1ToAdd = b.getBlobID();
         added.put(fileName, sha1ToAdd);

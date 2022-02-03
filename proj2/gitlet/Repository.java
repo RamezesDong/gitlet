@@ -79,7 +79,7 @@ public class Repository {
 
     public static void commit(String commitMessage) {
         gitInitializedCheck();
-        if (commitMessage == null) {
+        if (commitMessage == null || commitMessage.length() == 0) {
             printAndExit("Please enter a commit message.");
         }
         String parent = getHeaderToCommitSHA1();
