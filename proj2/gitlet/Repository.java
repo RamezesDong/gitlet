@@ -126,7 +126,7 @@ public class Repository {
     public static void status() {
         gitInitializedCheck();
         branchesStatus();
-        Stage stage = new Stage();
+        Stage stage = getINDEX();
         stage.status();
         printOneLine("=== Modifications Not Staged For Commit ===");
         notStagedForCommit();
@@ -138,6 +138,7 @@ public class Repository {
         File[] filesList = CWD.listFiles();
         Commit cm = getHeaderToCommit();
         HashMap<String, String> tracked = cm.getFiles();
+        printOneLine(null);
         for (File f : filesList) {
         }
         //TODO: delay to do
@@ -180,7 +181,7 @@ public class Repository {
     public static File findBranchFile(String branchName) {
         File[] files = HEAD_DIR.listFiles();
         for (File f : files) {
-            String s = f.toString();
+            String s = f.getName();
             if (s.equals(branchName)) {
                 return f;
             }

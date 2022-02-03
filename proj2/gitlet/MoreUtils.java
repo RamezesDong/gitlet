@@ -43,14 +43,11 @@ public class MoreUtils {
 
     static File getFileFromShortedID(String aShortID) {
         File objectDir = join(Repository.OBJECTS_DIR, aShortID.substring(0, 2));
-        if (!objectDir.exists()) {
-            return null;
-        }
         File[] filesList = objectDir.listFiles();
         String shortSub = aShortID.substring(2);
         int length = shortSub.length();
         for (File f : filesList) {
-            String s = f.toString();
+            String s = f.getName();
             if (s.substring(0, length).equals(shortSub)) {
                 return f;
             }
