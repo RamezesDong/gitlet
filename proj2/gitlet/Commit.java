@@ -138,6 +138,14 @@ public class Commit implements Serializable {
         return true;
     }
 
+    public void putFilesToCWD() {
+        for (String s : files.keySet()) {
+            String shaForS = files.get(s);
+            Blob b = Blob.getFromID(shaForS);
+            b.writeToSourceFile();
+        }
+    }
+
     public void reset() {
         for (String e : files.keySet()) {
             String sha1 = files.get(e);

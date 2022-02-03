@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
@@ -128,14 +129,63 @@ public class Repository {
         Stage stage = new Stage();
         stage.status();
         printOneLine("=== Modifications Not Staged For Commit ===");
-        printOneLine(null);
+        notStagedForCommit();
         printOneLine("=== Untracked Files ===");
         printOneLine(null);
     }
 
+    public static void notStagedForCommit() {
+        File[] filesList = CWD.listFiles();
+        Commit cm = getHeaderToCommit();
+        HashMap<String, String> tracked = cm.getFiles();
+        for (File f : filesList) {
+        }
+        //TODO: delay to do
+    }
+
     public static void changeBranch(String branchName) {
         gitInitializedCheck();
+        File branchFile = findBranchFile(branchName);
+        if (branchFile == null) {
+            printAndExit("No such branch exists.");
+        }
+        if (branchFile.getName().equals(getHeadFile().getName())) {
+            printAndExit("No need to checkout the current branch.");
+        }
+        List<File> files = findFilesUntracked();
+        if (files.size() != 0) {
+            printAndExit("There is an untracked file in the way; delete it, or add and commit it first.");
+        }
+        List<File> nowFiles = findAllCurrentFiles();
+        for (File f : nowFiles) {
+            restrictedDelete(f);
+        }
+        String branchID = readContentsAsString(branchFile);
+        Commit cm = readObject(getFileFromID(branchID), Commit.class);
+        cm.putFilesToCWD();
+        writeContents(HEADFILE, branchName);
+        restrictedDelete(INDEX);
+    }
 
+    public static List<File> findAllCurrentFiles() {
+        return null;
+        //TODO
+    }
+
+    public static List<File> findFilesUntracked() {
+        List<File> finds = new ArrayList<>();
+        return finds;
+    }
+
+    public static File findBranchFile(String branchName) {
+        File[] files = HEAD_DIR.listFiles();
+        for (File f : files) {
+            String s = f.toString();
+            if (s.equals(branchName)) {
+                return f;
+            }
+        }
+        return null;
     }
 
     public static void checkOutFile(String fName) {
