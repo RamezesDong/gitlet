@@ -182,19 +182,24 @@ public class Repository {
         }
         HashMap<String, String> nowFiles = findAllCurrentFiles();
         List<String> files = findFilesUntracked(nowFiles);
-        if (files.size() != 0) {
-            printAndExit("There is an "
-                    + "untracked file in the way; delete it, or add and commit it first.");
+        String branchID = readContentsAsString(branchFile);
+        Commit cm = readObject(getFileFromID(branchID), Commit.class);
+        HashMap<String, String> targetCommitFiles = cm.getFiles();
+        for (String s : files) {
+            String filesID = nowFiles.get(s);
+            if (!filesID.equals(targetCommitFiles.get(s))) {
+                printAndExit("There is an "
+                        + "untracked file in the way; delete it, or add and commit it first.");
+            }
         }
         for (String f : nowFiles.keySet()) {
             restrictedDelete(f);
         }
-        String branchID = readContentsAsString(branchFile);
-        Commit cm = readObject(getFileFromID(branchID), Commit.class);
         cm.putFilesToCWD();
         writeContents(HEADFILE, branchName);
         INDEX.delete();
     }
+
 
     public static HashMap<String, String> findAllCurrentFiles() {
         HashMap<String, String> currentFileMap = new HashMap<>();
@@ -297,15 +302,20 @@ public class Repository {
         }
         HashMap<String, String> nowFiles = findAllCurrentFiles();
         List<String> files = findFilesUntracked(nowFiles);
-        if (files.size() != 0) {
-            printAndExit("There is an "
-                    + "untracked file in the way; delete it, or add and commit it first.");
+        Commit objectCommit = readObject(commitFile, Commit.class);
+        HashMap<String, String> targetCommitFiles = objectCommit.getFiles();
+        for (String s : files) {
+            String filesID = nowFiles.get(s);
+            if (!filesID.equals(targetCommitFiles.get(s))) {
+                printAndExit("There is an "
+                        + "untracked file in the way; delete it, or add and commit it first.");
+            }
         }
         for (String f : nowFiles.keySet()) {
             File ff = join(CWD, f);
             restrictedDelete(ff);
         }
-        Commit objectCommit = readObject(commitFile, Commit.class);
+
         objectCommit.reset();
         File branchFile = getHeadFile();
         writeContents(branchFile, commitID);
