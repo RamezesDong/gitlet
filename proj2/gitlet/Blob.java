@@ -22,6 +22,11 @@ public class Blob implements Serializable {
         writeObject(blobFile, this);
     }
 
+
+    public String readContentAsString() {
+        return readContentsAsString(blobFile);
+    }
+
     public String getBlobID() {
         return blobID;
     }
@@ -37,6 +42,7 @@ public class Blob implements Serializable {
     public static Blob getFromID(String aBlobID) {
         return readObject(getFileFromID(aBlobID), Blob.class);
     }
+
 
     public void writeToSourceFile() {
         writeContents(sourceFile, content);

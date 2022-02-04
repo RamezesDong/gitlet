@@ -6,10 +6,7 @@ import java.text.SimpleDateFormat;
 
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 
 import static gitlet.MoreUtils.getFileFromID;
@@ -87,6 +84,23 @@ public class Commit implements Serializable {
         return sha1Values;
     }
 
+    public String merge(String m, String p1, String p2, HashMap<String, String> resultFiles) {
+        message = m;
+        Date date = new Date();
+        timeStamp = formatter.format(date);
+        parent = new ArrayList<>();
+        parent.add(p1);
+        parent.add(p2);
+        this.files = new HashMap<>(resultFiles);
+        Repository.INDEX.delete();
+        sha1Values = sha1(timeStamp, message, parent.toString(), files.toString());
+        File fileToSave = getFileFromID(sha1Values);
+        writeObject(fileToSave, this);
+        writeToGlobalLog();
+        writeToGlobalLog();
+        return sha1Values;
+    }
+
     public String initialCommit() {
         message = "initial commit";
         timeStamp = "Thu Jan 1 08:00:00 1970 +0800";
@@ -101,6 +115,14 @@ public class Commit implements Serializable {
     public void getSelfLog() {
         System.out.println("===");
         System.out.println("commit " + this.sha1Values);
+        if (this.parent.size() == 2) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append("Merge: ");
+            stringBuilder.append(parent.get(0).substring(0,7));
+            stringBuilder.append(" ");
+            stringBuilder.append(parent.get(1).substring(0,7));
+            System.out.println(stringBuilder.toString());
+        }
         System.out.println("Date: " + this.timeStamp);
         System.out.println(this.message);
         System.out.println();
@@ -126,6 +148,18 @@ public class Commit implements Serializable {
             return null;
         }
         return readObject(f, Commit.class);
+    }
+
+    public List<String> getParentList() {
+        List<String> list = new ArrayList<>();
+        list.add(sha1Values);
+        if (this.parent.size() == 0) {
+            return list;
+        } else {
+            Commit parentCommit = getCommitFromID(this.parent.get(0));
+            list.addAll(parentCommit.getParentList());
+            return list;
+        }
     }
 
     public boolean checkOutFileName(String fName) {

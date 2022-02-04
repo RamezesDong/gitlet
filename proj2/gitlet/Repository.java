@@ -1,5 +1,6 @@
 package gitlet;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -302,8 +303,138 @@ public class Repository {
         objectCommit.reset();
     }
 
-    public static void merge(String id) {
+    public static void merge(String branchName) {
+        gitInitializedCheck();
+        Stage stage = getINDEX();
+        stage.checkStage();
+        Commit headerToCommit = getHeaderToCommit();
+        File branchFile = findBranchFile(branchName);
+        if (branchFile == null) {
+            printAndExit("A branch with that name does not exist.");
+        }
+        if (branchFile.getName().equals(getHeadFile().getName())) {
+            printAndExit("Cannot merge a branch with itself.");
+        }
+        String id = readContentsAsString(branchFile);
+        Commit givenCommit = Commit.getCommitFromID(id);
+        Commit splitCommit = getSplitCommit(headerToCommit, givenCommit);
+        if (splitCommit.getSha1Values().equals(givenCommit.getSha1Values())) {
+            printAndExit("Given branch is an ancestor of the current branch.");
+        }
+        if (splitCommit.getSha1Values().equals(headerToCommit.getSha1Values())) {
+            changeBranch(branchName);
+            printAndExit("Current branch fast-forwarded.");
+        }
+        HashMap<String, String> nowFiles = findAllCurrentFiles();
+        List<String> files = findFilesUntracked(nowFiles);
+        if (files.size() != 0) {
+            printAndExit("There is an "
+                    + "untracked file in the way; delete it, or add and commit it first.");
+        }
+        boolean conflictFlag = false;
+        HashMap<String, String> splitTracked = splitCommit.getFiles();
+        HashMap<String, String> headerTracked = headerToCommit.getFiles();
+        HashMap<String, String> givenTracked = givenCommit.getFiles();
+        HashMap<String, String> resultTracked = new HashMap<>();
+        for (String s : splitTracked.keySet()) {
+            if (headerTracked.containsKey(s) && headerTracked.get(s).equals(splitTracked.get(s))) {
+                if (!givenTracked.containsKey(s)) {
+                    continue;
+                } else {
+                    resultTracked.put(s, givenTracked.get(s));
+                }
+            } else if (givenTracked.containsKey(s) && givenTracked.get(s).equals(splitTracked.get(s))) {
+                if (!headerTracked.containsKey(s)) {
+                    continue;
+                } else {
+                    resultTracked.put(s, headerTracked.get(s));
+                }
+            } else if (givenTracked.containsKey(s) && headerTracked.containsKey(s)
+                    && givenTracked.get(s).equals(headerTracked.get(s))) {
+                resultTracked.put(s, headerTracked.get(s));
+            } else if (!givenTracked.containsKey(s) && !headerTracked.containsKey(s)){
+                continue;
+            } else {
+                conflictFlag = true;
+                String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
+                File f = join(CWD, s);
+                writeContents(f, endContent);
+                Blob nb = new Blob(f);
+                resultTracked.put(s, nb.getBlobID());
+            }
+        }
+        for (String s : headerTracked.keySet()) {
+            if (resultTracked.containsKey(s)) {
+                continue;
+            }
+            if (!givenTracked.containsKey(s)) {
+                resultTracked.put(s, headerTracked.get(s));
+            } else if (headerTracked.get(s).equals(givenTracked.get(s))) {
+                resultTracked.put(s, headerTracked.get(s));
+            } else {
+                conflictFlag = true;
+                String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
+                File f = join(CWD, s);
+                writeContents(f, endContent);
+                Blob nb = new Blob(f);
+                resultTracked.put(s, nb.getBlobID());
+            }
+        }
+        for (String s : givenTracked.keySet()) {
+            if (resultTracked.containsKey(s)) {
+                continue;
+            }
+            if (!headerTracked.containsKey(s)) {
+                resultTracked.put(s, givenTracked.get(s));
+            } else if (headerTracked.get(s).equals(givenTracked.get(s))) {
+                resultTracked.put(s, givenTracked.get(s));
+            } else {
+                conflictFlag = true;
+                String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
+                File f = join(CWD, s);
+                writeContents(f, endContent);
+                Blob nb = new Blob(f);
+                resultTracked.put(s, nb.getBlobID());
+            }
+        }
+        if (conflictFlag) {
+            printOneLine("Encountered a merge conflict.");
+        }
+        StringBuilder message = new StringBuilder();
+        message.append("Merged ");
+        message.append(getHEAD());
+        message.append(" into ");
+        message.append(branchName);
+        message.append(".");
+        String sha = new Commit().merge(message.toString(), getHeaderToCommitSHA1(), id, resultTracked);
+        File headerFile = getHeadFile();
+        writeContents(headerFile, sha);
+    }
 
+    public static String getConflict(String currentSha, String givenSha) {
+        StringBuilder fileContent = new StringBuilder();
+        fileContent.append("<<<<<<< HEAD\n");
+        if (currentSha != null) {
+            fileContent.append(Blob.getFromID(currentSha).readContentAsString());
+        }
+        fileContent.append("=======\n");
+        if (givenSha != null) {
+            fileContent.append(Blob.getFromID(givenSha).readContentAsString());
+        }
+        fileContent.append(">>>>>>>");
+        return fileContent.toString();
+    }
+
+    public static Commit getSplitCommit(Commit current, Commit given) {
+        List<String> parentListC = current.getParentList();
+        List<String> parentListG = given.getParentList();
+        int lenC = parentListC.size();
+        int lenG = parentListG.size();
+        while((lenC >= 1 && lenG >= 1) && parentListC.get(lenC - 1).equals(parentListG.get(lenG - 1))) {
+            lenC --;
+            lenG --;
+        }
+        return Commit.getCommitFromID(parentListC.get(lenC));
     }
 
     public static void branchesStatus() {

@@ -99,6 +99,12 @@ public class Stage implements Serializable {
         writeObject(Repository.INDEX, this);
     }
 
+    public void checkStage() {
+        if (added.size() != 0 || removed.size() != 0 ) {
+            printAndExit("You have uncommitted changes.");
+        }
+    }
+
     public HashMap<String, String> getAdded() {
         return added;
     }
