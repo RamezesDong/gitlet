@@ -1,8 +1,12 @@
 package gitlet;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
-import java.util.*;
 
 import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;
@@ -37,7 +41,6 @@ public class Repository {
     public static final File INDEX = join(GITLET_DIR, "INDEX");
     public static final File HEADFILE = join(GITLET_DIR, "HEAD");
     public static final File LOGS = join(GITLET_DIR, "logs");
-    public static Commit head;
 
 
     /**
@@ -46,8 +49,8 @@ public class Repository {
      */
     public static void init() {
         if (GITLET_DIR.exists()) {
-            printAndExit("A Gitlet version-control " +
-                    "system already exists in the current directory.");
+            printAndExit("A Gitlet version-control "
+                    + "system already exists in the current directory.");
         }
         GITLET_DIR.mkdir();
         OBJECTS_DIR.mkdir();
@@ -138,7 +141,8 @@ public class Repository {
         HashSet<String> removed = index.getRemoved();
         HashSet<String> printed = new HashSet<>();
         for (String s : currentFiles.keySet()) {
-            if ((tracked.containsKey(s) && !tracked.get(s).equals(currentFiles.get(s)) && !added.containsKey(s))
+            if ((tracked.containsKey(s) && !tracked.get(s).equals(currentFiles.get(s))
+                    && !added.containsKey(s))
                     || (added.containsKey(s) && !added.get(s).equals(currentFiles.get(s)))) {
                 printOneLine(s + " (modified)");
                 printed.add(s);
@@ -179,7 +183,8 @@ public class Repository {
         HashMap<String, String> nowFiles = findAllCurrentFiles();
         List<String> files = findFilesUntracked(nowFiles);
         if (files.size() != 0) {
-            printAndExit("There is an untracked file in the way; delete it, or add and commit it first.");
+            printAndExit("There is an "
+                    + "untracked file in the way; delete it, or add and commit it first.");
         }
         for (String f : nowFiles.keySet()) {
             File ff = join(CWD, f);
@@ -286,7 +291,8 @@ public class Repository {
         HashMap<String, String> nowFiles = findAllCurrentFiles();
         List<String> files = findFilesUntracked(nowFiles);
         if (files.size() != 0) {
-            printAndExit("There is an untracked file in the way; delete it, or add and commit it first.");
+            printAndExit("There is an "
+                    + "untracked file in the way; delete it, or add and commit it first.");
         }
         for (String f : nowFiles.keySet()) {
             File ff = join(CWD, f);
