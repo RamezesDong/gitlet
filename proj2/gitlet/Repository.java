@@ -1,11 +1,8 @@
 package gitlet;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.Serializable;
+
 import java.util.*;
-import java.lang.reflect.Array;
 
 import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;
@@ -185,7 +182,8 @@ public class Repository {
             printAndExit("There is an untracked file in the way; delete it, or add and commit it first.");
         }
         for (String f : nowFiles.keySet()) {
-            restrictedDelete(f);
+            File ff = join(CWD, f);
+            restrictedDelete(ff);
         }
         String branchID = readContentsAsString(branchFile);
         Commit cm = readObject(getFileFromID(branchID), Commit.class);
@@ -230,7 +228,7 @@ public class Repository {
     public static void checkOutFile(String fName) {
         gitInitializedCheck();
         Commit currentCommit = getHeaderToCommit();
-        if (!currentCommit.CheckOutFileName(fName)) {
+        if (!currentCommit.checkOutFileName(fName)) {
             printAndExit("File does not exist in that commit.");
         }
     }
@@ -245,7 +243,7 @@ public class Repository {
         if (currentCommit == null) {
             printAndExit("No commit with that id exists.");
         }
-        if (!currentCommit.CheckOutFileName(fName)) {
+        if (!currentCommit.checkOutFileName(fName)) {
             printAndExit("File does not exist in that commit.");
         }
     }
@@ -272,7 +270,7 @@ public class Repository {
         for (File f : fileList) {
             String s = f.getName();
             if (s.equals(branchName)) {
-                restrictedDelete(f);
+                f.delete();
                 System.exit(1);
             }
         }
@@ -281,9 +279,18 @@ public class Repository {
 
     public static void reset(String commitID) {
         gitInitializedCheck();
-        File commitFile = getFileFromID(commitID);
+        File commitFile = getFileFromShortedID(commitID);
         if (!commitFile.exists()) {
             printAndExit("No commit with that id exists.");
+        }
+        HashMap<String, String> nowFiles = findAllCurrentFiles();
+        List<String> files = findFilesUntracked(nowFiles);
+        if (files.size() != 0) {
+            printAndExit("There is an untracked file in the way; delete it, or add and commit it first.");
+        }
+        for (String f : nowFiles.keySet()) {
+            File ff = join(CWD, f);
+            restrictedDelete(ff);
         }
         Commit objectCommit = readObject(commitFile, Commit.class);
         objectCommit.reset();

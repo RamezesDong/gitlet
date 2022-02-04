@@ -2,8 +2,8 @@ package gitlet;
 
 import java.io.Serializable;
 import java.io.File;
-import java.util.*;
-import java.lang.reflect.Array;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;

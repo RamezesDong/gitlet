@@ -2,14 +2,15 @@ package gitlet;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.sql.*;
 
-import gitlet.Utils.*;
+
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.logging.SimpleFormatter;
+import java.util.HashMap;
+import java.util.HashSet;
+
 
 import static gitlet.MoreUtils.getFileFromID;
 import static gitlet.MoreUtils.printAndExit;
@@ -108,8 +109,8 @@ public class Commit implements Serializable {
     public void getLog() {
         this.getSelfLog();
         if (this.parent.size() != 0) {
-            Commit parent = getCommitFromID(this.parent.get(0));
-            parent.getLog();
+            Commit parentCommit = getCommitFromID(this.parent.get(0));
+            parentCommit.getLog();
         }
     }
 
@@ -127,7 +128,7 @@ public class Commit implements Serializable {
         return readObject(f, Commit.class);
     }
 
-    public boolean CheckOutFileName(String fName) {
+    public boolean checkOutFileName(String fName) {
         String sha1Str = files.get(fName);
         if (sha1Str == null) {
             return false;

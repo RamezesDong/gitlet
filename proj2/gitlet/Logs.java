@@ -1,11 +1,9 @@
 package gitlet;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
-import java.lang.reflect.Array;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;

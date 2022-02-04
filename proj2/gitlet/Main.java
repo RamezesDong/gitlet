@@ -1,10 +1,5 @@
 package gitlet;
 
-import java.io.File;
-import java.util.*;
-import java.lang.reflect.Array;
-
-import static gitlet.Utils.*;
 import static gitlet.MoreUtils.*;
 
 /**
@@ -93,28 +88,7 @@ public class Main {
                 Repository.status();
                 break;
             case "checkout":
-                if (args.length == 2) {
-                    String branchName = args[1];
-                    Repository.changeBranch(branchName);
-                    break;
-                } else if (args.length == 3) {
-                    if (args[1].equals("--")) {
-                        String fName = args[2];
-                        Repository.checkOutFile(fName);
-                    } else {
-                        printAndExit("Incorrect operands.");
-                    }
-                } else if (args.length == 4) {
-                    if (args[2].equals("--")) {
-                        String bID = args[1];
-                        String fName = args[3];
-                        Repository.checkOutFileFromCommit(bID, fName);
-                    } else {
-                        printAndExit("Incorrect operands.");
-                    }
-                } else {
-                    printAndExit("Incorrect operands.");
-                }
+                checkOut(args);
                 break;
             case "branch":
                 validateNumArgs(args, 2);
@@ -145,6 +119,30 @@ public class Main {
         if (args.length != n) {
             System.out.println("Incorrect operands.");
             System.exit(0);
+        }
+    }
+
+    public static void checkOut(String[] args) {
+        if (args.length == 2) {
+            String branchName = args[1];
+            Repository.changeBranch(branchName);
+        } else if (args.length == 3) {
+            if (args[1].equals("--")) {
+                String fName = args[2];
+                Repository.checkOutFile(fName);
+            } else {
+                printAndExit("Incorrect operands.");
+            }
+        } else if (args.length == 4) {
+            if (args[2].equals("--")) {
+                String bID = args[1];
+                String fName = args[3];
+                Repository.checkOutFileFromCommit(bID, fName);
+            } else {
+                printAndExit("Incorrect operands.");
+            }
+        } else {
+            printAndExit("Incorrect operands.");
         }
     }
 }
