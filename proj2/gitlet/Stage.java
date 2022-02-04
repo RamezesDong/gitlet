@@ -100,7 +100,7 @@ public class Stage implements Serializable {
     }
 
     public void checkStage() {
-        if (added.size() != 0 || removed.size() != 0 ) {
+        if (added.size() != 0 || removed.size() != 0) {
             printAndExit("You have uncommitted changes.");
         }
     }

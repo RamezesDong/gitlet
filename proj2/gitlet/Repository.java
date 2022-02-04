@@ -273,14 +273,17 @@ public class Repository {
         if (branchName.equals(headName)) {
             printAndExit("Cannot remove the current branch.");
         }
+        boolean flag = true;
         for (File f : fileList) {
             String s = f.getName();
             if (s.equals(branchName)) {
+                flag = false;
                 f.delete();
-                System.exit(1);
             }
         }
-        printAndExit("A branch with that name does not exist.");
+        if (flag) {
+            printAndExit("A branch with that name does not exist.");
+        }
     }
 
     public static void reset(String commitID) {
@@ -336,7 +339,9 @@ public class Repository {
         HashMap<String, String> headerTracked = headerToCommit.getFiles();
         HashMap<String, String> givenTracked = givenCommit.getFiles();
         HashMap<String, String> resultTracked = new HashMap<>();
+        HashSet<String> inSplitTracked = new HashSet<>();
         for (String s : splitTracked.keySet()) {
+            inSplitTracked.add(s);
             if (headerTracked.containsKey(s) && headerTracked.get(s).equals(splitTracked.get(s))) {
                 if (!givenTracked.containsKey(s)) {
                     continue;
@@ -352,7 +357,7 @@ public class Repository {
             } else if (givenTracked.containsKey(s) && headerTracked.containsKey(s)
                     && givenTracked.get(s).equals(headerTracked.get(s))) {
                 resultTracked.put(s, headerTracked.get(s));
-            } else if (!givenTracked.containsKey(s) && !headerTracked.containsKey(s)){
+            } else if (!givenTracked.containsKey(s) && !headerTracked.containsKey(s)) {
                 continue;
             } else {
                 conflictFlag = true;
@@ -364,7 +369,7 @@ public class Repository {
             }
         }
         for (String s : headerTracked.keySet()) {
-            if (resultTracked.containsKey(s)) {
+            if (resultTracked.containsKey(s) || inSplitTracked.contains(s)) {
                 continue;
             }
             if (!givenTracked.containsKey(s)) {
@@ -381,7 +386,7 @@ public class Repository {
             }
         }
         for (String s : givenTracked.keySet()) {
-            if (resultTracked.containsKey(s)) {
+            if (resultTracked.containsKey(s) || inSplitTracked.contains(s)) {
                 continue;
             }
             if (!headerTracked.containsKey(s)) {
@@ -430,9 +435,9 @@ public class Repository {
         List<String> parentListG = given.getParentList();
         int lenC = parentListC.size();
         int lenG = parentListG.size();
-        while((lenC >= 1 && lenG >= 1) && parentListC.get(lenC - 1).equals(parentListG.get(lenG - 1))) {
-            lenC --;
-            lenG --;
+        while ((lenC >= 1 && lenG >= 1) && parentListC.get(lenC - 1).equals(parentListG.get(lenG - 1))) {
+            lenC--;
+            lenG--;
         }
         return Commit.getCommitFromID(parentListC.get(lenC));
     }
