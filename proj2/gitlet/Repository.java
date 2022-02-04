@@ -156,17 +156,16 @@ public class Repository {
             }
         }
         for (String s : tracked.keySet()) {
-            if (!removed.contains(s) && !currentFiles.containsKey(s) && printed.contains(s)) {
+            if (!removed.contains(s) && !currentFiles.containsKey(s) && !printed.contains(s)) {
                 printOneLine(s + " (deleted)");
             }
         }
         printOneLine(null);
 
         printOneLine("=== Untracked Files ===");
-        for (String s : currentFiles.keySet()) {
-            if (!added.containsKey(s) && !tracked.containsKey(s)) {
-                printOneLine(s);
-            }
+        List<String> untracked = findFilesUntracked(currentFiles);
+        for (String s : untracked) {
+            printOneLine(s);
         }
         printOneLine(null);
     }
@@ -188,8 +187,7 @@ public class Repository {
                     + "untracked file in the way; delete it, or add and commit it first.");
         }
         for (String f : nowFiles.keySet()) {
-            File ff = join(CWD, f);
-            restrictedDelete(ff);
+            restrictedDelete(f);
         }
         String branchID = readContentsAsString(branchFile);
         Commit cm = readObject(getFileFromID(branchID), Commit.class);
@@ -212,8 +210,13 @@ public class Repository {
         List<String> finds = new ArrayList<>();
         HashMap<String, String> tracked = getHeaderToCommit().getFiles();
         HashMap<String, String> added = getINDEX().getAdded();
+        HashSet<String> removed = getINDEX().getRemoved();
         for (String s : currentFiles.keySet()) {
-            if (!tracked.containsKey(s) && !added.containsKey(s)) {
+            if (tracked.containsKey(s)) {
+                if (removed.contains(s)) {
+                    finds.add(s);
+                }
+            } else if (!added.containsKey(s)) {
                 finds.add(s);
             }
         }
