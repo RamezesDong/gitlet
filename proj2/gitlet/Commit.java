@@ -95,7 +95,7 @@ public class Commit implements Serializable {
         sha1Values = sha1(timeStamp, message, parent.toString(), files.toString());
         File fileToSave = getFileFromID(sha1Values);
         writeObject(fileToSave, this);
-        writeToGlobalLog();
+        this.putFilesToCWD();
         writeToGlobalLog();
         return sha1Values;
     }

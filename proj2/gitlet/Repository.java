@@ -334,6 +334,10 @@ public class Repository {
             printAndExit("There is an "
                     + "untracked file in the way; delete it, or add and commit it first.");
         }
+        for (String f : nowFiles.keySet()) {
+            File ff = join(CWD, f);
+            restrictedDelete(ff);
+        }
         boolean conflictFlag = false;
         HashMap<String, String> splitTracked = splitCommit.getFiles();
         HashMap<String, String> headerTracked = headerToCommit.getFiles();
