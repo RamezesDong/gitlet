@@ -30,15 +30,24 @@ public class Stage implements Serializable {
         String sha1ToAdd = b.getBlobID();
         if (Repository.getHeaderToCommit().getFiles().get(fileName) == null) {
             added.put(fileName, sha1ToAdd);
+            removeAdd(fileName);
             this.save();
-        } else if (Repository.getHeaderToCommit().getFiles().get(fileName).equals(fileName)) {
+        } else if (Repository.getHeaderToCommit().getFiles().get(fileName).equals(sha1ToAdd)) {
             if (added.containsKey(fileName)) {
                 added.remove(fileName);
-                this.save();
             }
+            removeAdd(fileName);
+            this.save();
         } else {
             added.put(fileName, sha1ToAdd);
+            removeAdd(fileName);
             this.save();
+        }
+    }
+
+    public void removeAdd(String fileName) {
+        if (removed.contains(fileName)) {
+            removed.remove(fileName);
         }
     }
 

@@ -191,7 +191,7 @@ public class Repository {
         Commit cm = readObject(getFileFromID(branchID), Commit.class);
         cm.putFilesToCWD();
         writeContents(HEADFILE, branchName);
-        restrictedDelete(INDEX);
+        INDEX.delete();
     }
 
     public static HashMap<String, String> findAllCurrentFiles() {
