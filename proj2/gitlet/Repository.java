@@ -289,7 +289,7 @@ public class Repository {
     public static void reset(String commitID) {
         gitInitializedCheck();
         File commitFile = getFileFromShortedID(commitID);
-        if (!commitFile.exists()) {
+        if (commitFile == null || !commitFile.exists()) {
             printAndExit("No commit with that id exists.");
         }
         HashMap<String, String> nowFiles = findAllCurrentFiles();
@@ -413,9 +413,9 @@ public class Repository {
         }
         StringBuilder message = new StringBuilder();
         message.append("Merged ");
-        message.append(getHEAD());
-        message.append(" into ");
         message.append(branchName);
+        message.append(" into ");
+        message.append(getHEAD());
         message.append(".");
         String sha = new Commit().merge(message.toString(), getHeaderToCommitSHA1(), id, resultTracked);
         File headerFile = getHeadFile();
@@ -505,7 +505,7 @@ public class Repository {
 
     private static void gitInitializedCheck() {
         if (!GITLET_DIR.exists()) {
-            printAndExit("Not a gitlet repository.");
+            printAndExit("Not in an initialized Gitlet directory.");
         }
     }
 }
