@@ -117,9 +117,9 @@ public class Commit implements Serializable {
         if (this.parent.size() == 2) {
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("Merge: ");
-            stringBuilder.append(parent.get(0).substring(0, 7));
-            stringBuilder.append(" ");
             stringBuilder.append(parent.get(1).substring(0, 7));
+            stringBuilder.append(" ");
+            stringBuilder.append(parent.get(0).substring(0, 7));
             System.out.println(stringBuilder.toString());
         }
         System.out.println("Date: " + this.timeStamp);

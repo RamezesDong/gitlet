@@ -304,6 +304,8 @@ public class Repository {
         }
         Commit objectCommit = readObject(commitFile, Commit.class);
         objectCommit.reset();
+        File branchFile = getHeadFile();
+        writeContents(branchFile, commitID);
     }
 
     public static void merge(String branchName) {
