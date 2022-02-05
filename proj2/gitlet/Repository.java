@@ -1,6 +1,5 @@
 package gitlet;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -192,15 +191,19 @@ public class Repository {
                         + "untracked file in the way; delete it, or add and commit it first.");
             }
         }
-        for (String f : nowFiles.keySet()) {
-            File ff = join(CWD, f);
-            ff.delete();
-        }
+        deleteCurrentFiles();
         cm.putFilesToCWD();
         writeContents(HEADFILE, branchName);
         INDEX.delete();
     }
 
+
+    public static void deleteCurrentFiles() {
+        File[] currentFiles = CWD.listFiles(File::isFile);
+        for (File f : currentFiles) {
+            restrictedDelete(f);
+        }
+    }
 
     public static HashMap<String, String> findAllCurrentFiles() {
         HashMap<String, String> currentFileMap = new HashMap<>();
@@ -354,10 +357,24 @@ public class Repository {
             File ff = join(CWD, f);
             restrictedDelete(ff);
         }
+        HashMap<String, String> resultTracked = getResultFiles(splitCommit, headerToCommit, givenCommit);
+        StringBuilder message = new StringBuilder();
+        message.append("Merged ");
+        message.append(branchName);
+        message.append(" into ");
+        message.append(getHEAD());
+        message.append(".");
+        String sha = new Commit().merge(message.toString(),
+                getHeaderToCommitSHA1(), id, resultTracked);
+        File headerFile = getHeadFile();
+        writeContents(headerFile, sha);
+    }
+
+    public static HashMap<String, String> getResultFiles(Commit split, Commit current, Commit given) {
         boolean conflictFlag = false;
-        HashMap<String, String> splitTracked = splitCommit.getFiles();
-        HashMap<String, String> headerTracked = headerToCommit.getFiles();
-        HashMap<String, String> givenTracked = givenCommit.getFiles();
+        HashMap<String, String> splitTracked = split.getFiles();
+        HashMap<String, String> headerTracked = current.getFiles();
+        HashMap<String, String> givenTracked = given.getFiles();
         HashMap<String, String> resultTracked = new HashMap<>();
         HashSet<String> inSplitTracked = new HashSet<>();
         for (String s : splitTracked.keySet()) {
@@ -368,7 +385,8 @@ public class Repository {
                 } else {
                     resultTracked.put(s, givenTracked.get(s));
                 }
-            } else if (givenTracked.containsKey(s) && givenTracked.get(s).equals(splitTracked.get(s))) {
+            } else if (givenTracked.containsKey(s)
+                    && givenTracked.get(s).equals(splitTracked.get(s))) {
                 if (!headerTracked.containsKey(s)) {
                     continue;
                 } else {
@@ -425,15 +443,6 @@ public class Repository {
         if (conflictFlag) {
             printOneLine("Encountered a merge conflict.");
         }
-        StringBuilder message = new StringBuilder();
-        message.append("Merged ");
-        message.append(branchName);
-        message.append(" into ");
-        message.append(getHEAD());
-        message.append(".");
-        String sha = new Commit().merge(message.toString(), getHeaderToCommitSHA1(), id, resultTracked);
-        File headerFile = getHeadFile();
-        writeContents(headerFile, sha);
     }
 
     public static String getConflict(String currentSha, String givenSha) {
@@ -455,7 +464,8 @@ public class Repository {
         List<String> parentListG = given.getParentList();
         int lenC = parentListC.size();
         int lenG = parentListG.size();
-        while ((lenC >= 1 && lenG >= 1) && parentListC.get(lenC - 1).equals(parentListG.get(lenG - 1))) {
+        while ((lenC >= 1 && lenG >= 1)
+                && parentListC.get(lenC - 1).equals(parentListG.get(lenG - 1))) {
             lenC--;
             lenG--;
         }

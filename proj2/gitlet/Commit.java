@@ -170,7 +170,8 @@ public class Commit implements Serializable {
         for (String s : files.keySet()) {
             String shaForS = files.get(s);
             Blob b = Blob.getFromID(shaForS);
-            b.writeToSourceFile();
+            File f = join(Repository.CWD, s);
+            writeContents(f, b.getContent());
         }
     }
 
