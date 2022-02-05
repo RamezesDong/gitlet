@@ -193,7 +193,8 @@ public class Repository {
             }
         }
         for (String f : nowFiles.keySet()) {
-            restrictedDelete(f);
+            File ff = join(CWD, f);
+            ff.delete();
         }
         cm.putFilesToCWD();
         writeContents(HEADFILE, branchName);
