@@ -357,7 +357,8 @@ public class Repository {
             File ff = join(CWD, f);
             restrictedDelete(ff);
         }
-        HashMap<String, String> resultTracked = getResultFiles(splitCommit, headerToCommit, givenCommit);
+        HashMap<String, String> resultTracked =
+                getResultFiles(splitCommit, headerToCommit, givenCommit);
         StringBuilder message = new StringBuilder();
         message.append("Merged ");
         message.append(branchName);
@@ -370,7 +371,8 @@ public class Repository {
         writeContents(headerFile, sha);
     }
 
-    public static HashMap<String, String> getResultFiles(Commit split, Commit current, Commit given) {
+    public static HashMap<String, String> getResultFiles(Commit split,
+                                                         Commit current, Commit given) {
         boolean conflictFlag = false;
         HashMap<String, String> splitTracked = split.getFiles();
         HashMap<String, String> headerTracked = current.getFiles();
@@ -443,6 +445,7 @@ public class Repository {
         if (conflictFlag) {
             printOneLine("Encountered a merge conflict.");
         }
+        return resultTracked;
     }
 
     public static String getConflict(String currentSha, String givenSha) {
