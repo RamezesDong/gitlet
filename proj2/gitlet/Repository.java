@@ -378,40 +378,33 @@ public class Repository {
         HashMap<String, String> headerTracked = current.getFiles();
         HashMap<String, String> givenTracked = given.getFiles();
         HashMap<String, String> resultTracked = new HashMap<>();
-        HashSet<String> inSplitTracked = new HashSet<>();
         for (String s : splitTracked.keySet()) {
-            inSplitTracked.add(s);
-            if (headerTracked.containsKey(s) && headerTracked.get(s).equals(splitTracked.get(s))) {
-                if (!givenTracked.containsKey(s)) {
-                    continue;
-                } else {
+            if (headerTracked.containsKey(s)
+                    && headerTracked.get(s).equals(splitTracked.get(s))) {
+                if (givenTracked.containsKey(s)) {
                     resultTracked.put(s, givenTracked.get(s));
                 }
             } else if (givenTracked.containsKey(s)
                     && givenTracked.get(s).equals(splitTracked.get(s))) {
-                if (!headerTracked.containsKey(s)) {
-                    continue;
-                } else {
+                if (headerTracked.containsKey(s)) {
                     resultTracked.put(s, headerTracked.get(s));
                 }
-            } else if (givenTracked.containsKey(s) && headerTracked.containsKey(s)
-                    && givenTracked.get(s).equals(headerTracked.get(s))) {
-                resultTracked.put(s, headerTracked.get(s));
-            } else if (!givenTracked.containsKey(s) && !headerTracked.containsKey(s)) {
-                continue;
-            } else {
-                conflictFlag = true;
-                String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
-                File f = join(CWD, s);
-                writeContents(f, endContent);
-                Blob nb = new Blob(f);
-                resultTracked.put(s, nb.getBlobID());
+            } else if (givenTracked.containsKey(s) && headerTracked.containsKey(s)) {
+                if (givenTracked.get(s).equals(headerTracked.get(s))) {
+                    resultTracked.put(s, headerTracked.get(s));
+                } else {
+                    conflictFlag = true;
+                    String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
+                    File f = join(CWD, s);
+                    writeContents(f, endContent);
+                    Blob nb = new Blob(f);
+                    resultTracked.put(s, nb.getBlobID());
+                }
             }
+            headerTracked.remove(s);
+            givenTracked.remove(s);
         }
         for (String s : headerTracked.keySet()) {
-            if (resultTracked.containsKey(s) || inSplitTracked.contains(s)) {
-                continue;
-            }
             if (!givenTracked.containsKey(s)) {
                 resultTracked.put(s, headerTracked.get(s));
             } else if (headerTracked.get(s).equals(givenTracked.get(s))) {
@@ -424,23 +417,10 @@ public class Repository {
                 Blob nb = new Blob(f);
                 resultTracked.put(s, nb.getBlobID());
             }
+            givenTracked.remove(s);
         }
         for (String s : givenTracked.keySet()) {
-            if (resultTracked.containsKey(s) || inSplitTracked.contains(s)) {
-                continue;
-            }
-            if (!headerTracked.containsKey(s)) {
-                resultTracked.put(s, givenTracked.get(s));
-            } else if (headerTracked.get(s).equals(givenTracked.get(s))) {
-                resultTracked.put(s, givenTracked.get(s));
-            } else {
-                conflictFlag = true;
-                String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
-                File f = join(CWD, s);
-                writeContents(f, endContent);
-                Blob nb = new Blob(f);
-                resultTracked.put(s, nb.getBlobID());
-            }
+            resultTracked.put(s, givenTracked.get(s));
         }
         if (conflictFlag) {
             printOneLine("Encountered a merge conflict.");
