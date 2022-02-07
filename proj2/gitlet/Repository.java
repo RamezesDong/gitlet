@@ -433,11 +433,11 @@ public class Repository {
         StringBuilder fileContent = new StringBuilder();
         fileContent.append("<<<<<<< HEAD").append("\n");
         if (currentSha != null) {
-            fileContent.append(Blob.getFromID(currentSha).readContentAsString().split("\n"));
+            fileContent.append(Blob.getFromID(currentSha).readContentAsString());
         }
         fileContent.append("=======").append("\n");
         if (givenSha != null) {
-            fileContent.append(Blob.getFromID(givenSha).readContentAsString().split("\n"));
+            fileContent.append(Blob.getFromID(givenSha).readContentAsString());
         }
         fileContent.append(">>>>>>>");
         return fileContent.toString();
