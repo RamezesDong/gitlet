@@ -5,7 +5,11 @@ import java.text.SimpleDateFormat;
 
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Date;
 
 
 import static gitlet.MoreUtils.getFileFromID;
@@ -152,8 +156,8 @@ public class Commit implements Serializable {
             set.add(sha1Values);
         }
         if (this.parent.size() == 1) {
-            Commit parent = getCommitFromID(this.parent.get(0));
-            list.addAll(parent.getParentList(set));
+            Commit parentCommit = getCommitFromID(this.parent.get(0));
+            list.addAll(parentCommit.getParentList(set));
         } else if (this.parent.size() == 2) {
             if (!set.contains(parent.get(0))) {
                 list.add(parent.get(0));
