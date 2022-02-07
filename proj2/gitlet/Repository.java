@@ -446,7 +446,7 @@ public class Repository {
         List<String> parentListC = current.getParentList(new HashSet<>());
         List<String> parentListG = given.getParentList(new HashSet<>());
         int lenC = parentListC.size();
-        for (int i = 0; i <= lenC; i--) {
+        for (int i = 0; i < lenC; i++) {
             if (parentListG.contains(parentListC.get(i))) {
                 return Commit.getCommitFromID(parentListC.get(i));
             }
