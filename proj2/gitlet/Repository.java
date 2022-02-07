@@ -431,13 +431,13 @@ public class Repository {
 
     public static String getConflict(String currentSha, String givenSha) {
         StringBuilder fileContent = new StringBuilder();
-        fileContent.append("<<<<<<< HEAD\n");
+        fileContent.append("<<<<<<< HEAD").append("\n");
         if (currentSha != null) {
-            fileContent.append(Blob.getFromID(currentSha).readContentAsString());
+            fileContent.append(Blob.getFromID(currentSha).readContentAsString().split("\n"));
         }
-        fileContent.append("=======\n");
+        fileContent.append("=======").append("\n");
         if (givenSha != null) {
-            fileContent.append(Blob.getFromID(givenSha).readContentAsString());
+            fileContent.append(Blob.getFromID(givenSha).readContentAsString().split("\n"));
         }
         fileContent.append(">>>>>>>");
         return fileContent.toString();
