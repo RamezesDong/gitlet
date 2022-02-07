@@ -430,17 +430,33 @@ public class Repository {
     }
 
     public static String getConflict(String currentSha, String givenSha) {
-        StringBuilder fileContent = new StringBuilder();
-        fileContent.append("<<<<<<< HEAD").append("\n");
+//        StringBuilder fileContent = new StringBuilder();
+//        fileContent.append("<<<<<<< HEAD").append("\n");
+//        if (currentSha != null) {
+//            fileContent.append(Blob.getFromID(currentSha).readContentAsString());
+//        }
+//        fileContent.append("=======").append("\n");
+//        if (givenSha != null) {
+//            fileContent.append(Blob.getFromID(givenSha).readContentAsString());
+//        }
+//        fileContent.append(">>>>>>>");
+//        return fileContent.toString();
+        String first, second;
         if (currentSha != null) {
-            fileContent.append(Blob.getFromID(currentSha).readContentAsString());
+            Blob b = Blob.getFromID(currentSha);
+            first = readContentsAsString(b.getBlobFile());
+        } else {
+            first = "";
         }
-        fileContent.append("=======").append("\n");
         if (givenSha != null) {
-            fileContent.append(Blob.getFromID(givenSha).readContentAsString());
+            Blob b = Blob.getFromID(givenSha);
+            second = readContentsAsString(b.getBlobFile());
+        } else {
+            second = "";
         }
-        fileContent.append(">>>>>>>");
-        return fileContent.toString();
+        String third =
+                "<<<<<<< HEAD\n" + first + "=======\n" + second + ">>>>>>>\n";
+        return third;
     }
 
     public static Commit getSplitCommit(Commit current, Commit given) {
