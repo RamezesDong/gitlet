@@ -145,16 +145,28 @@ public class Commit implements Serializable {
         return readObject(f, Commit.class);
     }
 
-    public List<String> getParentList() {
+    public List<String> getParentList(HashSet<String> set) {
         List<String> list = new ArrayList<>();
-        list.add(sha1Values);
-        if (this.parent.size() == 0) {
-            return list;
-        } else {
-            Commit parentCommit = getCommitFromID(this.parent.get(0));
-            list.addAll(parentCommit.getParentList());
-            return list;
+        if (!set.contains(sha1Values)) {
+            list.add(sha1Values);
+            set.add(sha1Values);
         }
+        if (this.parent.size() == 1) {
+            Commit parent = getCommitFromID(this.parent.get(0));
+            list.addAll(parent.getParentList(set));
+        } else if (this.parent.size() == 2) {
+            if (!set.contains(parent.get(0))) {
+                list.add(parent.get(0));
+                set.add(parent.get(0));
+            }
+            if (!set.contains(parent.get(1))) {
+                list.add(parent.get(1));
+                set.add(parent.get(1));
+            }
+            list.addAll(getCommitFromID(parent.get(0)).getParentList(set));
+            list.addAll(getCommitFromID(parent.get(1)).getParentList(set));
+        }
+        return list;
     }
 
     public boolean checkOutFileName(String fName) {

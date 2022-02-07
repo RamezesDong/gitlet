@@ -443,16 +443,15 @@ public class Repository {
     }
 
     public static Commit getSplitCommit(Commit current, Commit given) {
-        List<String> parentListC = current.getParentList();
-        List<String> parentListG = given.getParentList();
+        List<String> parentListC = current.getParentList(new HashSet<>());
+        List<String> parentListG = given.getParentList(new HashSet<>());
         int lenC = parentListC.size();
-        int lenG = parentListG.size();
-        while ((lenC >= 1 && lenG >= 1)
-                && parentListC.get(lenC - 1).equals(parentListG.get(lenG - 1))) {
-            lenC--;
-            lenG--;
+        for (int i = 0; i <= lenC; i--) {
+            if (parentListG.contains(parentListC.get(i))) {
+                return Commit.getCommitFromID(parentListC.get(i));
+            }
         }
-        return Commit.getCommitFromID(parentListC.get(lenC));
+        return Commit.getCommitFromID(parentListC.get(lenC - 1));
     }
 
     public static void branchesStatus() {
