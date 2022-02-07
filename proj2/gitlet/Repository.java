@@ -389,17 +389,18 @@ public class Repository {
                 if (headerTracked.containsKey(s)) {
                     resultTracked.put(s, headerTracked.get(s));
                 }
-            } else if (givenTracked.containsKey(s) && headerTracked.containsKey(s)) {
-                if (givenTracked.get(s).equals(headerTracked.get(s))) {
-                    resultTracked.put(s, headerTracked.get(s));
-                } else {
-                    conflictFlag = true;
-                    String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
-                    File f = join(CWD, s);
-                    writeContents(f, endContent);
-                    Blob nb = new Blob(f);
-                    resultTracked.put(s, nb.getBlobID());
-                }
+            } else if (givenTracked.containsKey(s) && headerTracked.containsKey(s)
+                    && givenTracked.get(s).equals(headerTracked.get(s))) {
+                resultTracked.put(s, headerTracked.get(s));
+            } else if (!givenTracked.containsKey(s) && !headerTracked.containsKey(s)) {
+                headerTracked.remove(s);
+            } else {
+                conflictFlag = true;
+                String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
+                File f = join(CWD, s);
+                writeContents(f, endContent);
+                Blob nb = new Blob(f);
+                resultTracked.put(s, nb.getBlobID());
             }
             headerTracked.remove(s);
             givenTracked.remove(s);
