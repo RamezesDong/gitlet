@@ -455,7 +455,7 @@ public class Repository {
             second = "";
         }
         String third =
-                "<<<<<<< HEAD\n" + first + "=======\n" + second + ">>>>>>>\n";
+                "<<<<<<< HEAD\n" + first + "=======\n" + second + ">>>>>>>";
         return third;
     }
 
