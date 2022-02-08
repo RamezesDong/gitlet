@@ -34,7 +34,7 @@ public class Blob implements Serializable {
     }
 
     public String readContentAsString() {
-        return new String(readContents(blobFile), StandardCharsets.UTF_8);
+        return new String(content, StandardCharsets.UTF_8);
     }
 
     public String getBlobID() {

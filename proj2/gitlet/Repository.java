@@ -431,10 +431,10 @@ public class Repository {
     public static String getConflict(String currentSha, String givenSha) {
         String content = "<<<<<<< HEAD\n";
         content += currentSha == null ? ""
-                : readContentsAsString(getFileFromID(currentSha));
+                : readObject(getFileFromID(currentSha), Blob.class).readContentAsString();
         content += "=======\n";
         content += givenSha == null ? ""
-                : readContentsAsString(getFileFromID(givenSha));
+                : readObject(getFileFromID(givenSha), Blob.class).readContentAsString();
         content += ">>>>>>>\n";
         return content;
 //        Utils.message("Encountered a merge conflict.");
