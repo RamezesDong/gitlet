@@ -30,6 +30,7 @@ public class Blob implements Serializable {
         this.blobID = sha1;
         blobDir = join(Repository.OBJECTS_DIR, blobID.substring(0, 2));
         blobFile = join(blobDir, blobID.substring(2));
+        writeObject(blobFile, this);
     }
 
     public String readContentAsString() {
