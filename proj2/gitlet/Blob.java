@@ -23,6 +23,14 @@ public class Blob implements Serializable {
         writeObject(blobFile, this);
     }
 
+    public Blob (String fileName, String sha1, byte[] con) {
+        File f = join(Repository.CWD, fileName);
+        this.sourceFile = f;
+        this.content = con;
+        this.blobID = sha1;
+        blobDir = join(Repository.OBJECTS_DIR, blobID.substring(0, 2));
+        blobFile = join(blobDir, blobID.substring(2));
+    }
 
     public String readContentAsString() {
         return new String(readContents(blobFile), StandardCharsets.UTF_8);

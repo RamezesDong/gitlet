@@ -1,6 +1,7 @@
 package gitlet;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.HashMap;
@@ -397,9 +398,8 @@ public class Repository {
             } else {
                 conflictFlag = true;
                 String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
-                File f = join(CWD, s);
-                writeContents(f, endContent);
-                Blob nb = new Blob(f);
+                String sha1Blob = sha1(endContent.getBytes(StandardCharsets.UTF_8));
+                Blob nb = new Blob(s, sha1Blob, endContent.getBytes(StandardCharsets.UTF_8));
                 resultTracked.put(s, nb.getBlobID());
             }
             headerTracked.remove(s);
@@ -413,9 +413,8 @@ public class Repository {
             } else {
                 conflictFlag = true;
                 String endContent = getConflict(headerTracked.get(s), givenTracked.get(s));
-                File f = join(CWD, s);
-                writeContents(f, endContent);
-                Blob nb = new Blob(f);
+                String sha1Blob = sha1(endContent.getBytes(StandardCharsets.UTF_8));
+                Blob nb = new Blob(s, sha1Blob, endContent.getBytes(StandardCharsets.UTF_8));
                 resultTracked.put(s, nb.getBlobID());
             }
             givenTracked.remove(s);
@@ -430,17 +429,30 @@ public class Repository {
     }
 
     public static String getConflict(String currentSha, String givenSha) {
-        StringBuilder fileContent = new StringBuilder();
-        fileContent.append("<<<<<<< HEAD").append("\n");
-        if (currentSha != null) {
-            fileContent.append(Blob.getFromID(currentSha).readContentAsString());
-        }
-        fileContent.append("=======").append("\n");
-        if (givenSha != null) {
-            fileContent.append(Blob.getFromID(givenSha).readContentAsString());
-        }
-        fileContent.append(">>>>>>>\n");
-        return fileContent.toString();
+        String content = "<<<<<<< HEAD\n";
+        content += currentSha == null ? ""
+                : readContentsAsString(getFileFromID(currentSha));
+        content += "=======\n";
+        content += givenSha == null ? ""
+                : readContentsAsString(getFileFromID(givenSha));
+        content += ">>>>>>>\n";
+        return content;
+//        Utils.message("Encountered a merge conflict.");
+//        String content = "<<<<<<< HEAD\n";
+//        content += thisFileKey == null ? ""
+//                : Utils.readContentsAsString(getBlobFile(thisFileKey));
+//        content += "=======\n";
+//        content += otherFileKey == null ? ""
+//                : Utils.readContentsAsString(getBlobFile(otherFileKey));
+//        content += ">>>>>>>\n";
+//        String blobKey =
+//                Utils.sha1(content.getBytes(StandardCharsets.UTF_8));
+//        createBlob(getBlobFile(blobKey),
+//                content.getBytes(StandardCharsets.UTF_8));
+//        theStage.add(file, blobKey, this);
+//        File blobFile = getBlobFile(blobKey);
+//        Utils.writeContents(userPath(file).toFile(),
+//                Utils.readContents(blobFile));
     }
 
     public static Commit getSplitCommit(Commit current, Commit given) {
