@@ -23,7 +23,7 @@ public class Blob implements Serializable {
         writeObject(blobFile, this);
     }
 
-    public Blob (String fileName, String sha1, byte[] con) {
+    public Blob(String fileName, String sha1, byte[] con) {
         File f = join(Repository.CWD, fileName);
         this.sourceFile = f;
         this.content = con;
